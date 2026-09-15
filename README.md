@@ -11,7 +11,7 @@ The project was developed using a Spec Driven Development approach.
 The application is deployed with Vercel.
 
 Live URL:
-https://daily-reset-lsv5tvise-ana-8855.vercel.app/
+https://daily-reset-app-ten.vercel.app/
 
 ## Project goal
 
