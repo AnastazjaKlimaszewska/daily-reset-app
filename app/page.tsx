@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   type EnergyLevel,
   type MoodLevel,
@@ -16,6 +16,8 @@ import {
 import {
   saveCheckIn,
   saveCompletedAction,
+  getAllCheckIns,
+  getAllCompletedActions,
 } from "../lib/storage";
 
 export default function Home() {
@@ -33,11 +35,26 @@ export default function Home() {
 
   const [completed, setCompleted] = useState(false);
 
+  const [historyCheckIns, setHistoryCheckIns] = useState<CheckIn[]>([]);
+  const [historyActions, setHistoryActions] = useState<CompletedAction[]>([]);
+
   const isComplete =
     energy !== null &&
     mood !== null &&
     mentalLoad !== null &&
     availableTime !== null;
+
+  const loadHistory = async () => {
+    const checkIns = await getAllCheckIns();
+    const actions = await getAllCompletedActions();
+
+    setHistoryCheckIns(checkIns);
+    setHistoryActions(actions);
+  };
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   const handleSubmit = async () => {
     if (!isComplete || !energy || !mood || !mentalLoad || !availableTime) {
@@ -72,6 +89,8 @@ export default function Home() {
     setRecommendations(generatedRecommendations);
     setSelectedRecommendation(null);
     setCompleted(false);
+
+    await loadHistory();
   };
 
   const handleCompleteAction = async () => {
@@ -90,6 +109,8 @@ export default function Home() {
     await saveCompletedAction(completedAction);
 
     setCompleted(true);
+
+    await loadHistory();
   };
 
   const optionClass = (selected: boolean) =>
@@ -213,7 +234,8 @@ export default function Home() {
               <div className="space-y-3">
                 {recommendations.map((recommendation) => {
                   const selected =
-                    selectedRecommendation?.activity === recommendation.activity;
+                    selectedRecommendation?.activity ===
+                    recommendation.activity;
 
                   return (
                     <button
@@ -266,6 +288,92 @@ export default function Home() {
               )}
             </section>
           )}
+
+          <section className="mt-10 border-t border-stone-200 pt-8">
+            <p className="mb-2 text-sm text-stone-500">HISTORY</p>
+
+            <h2 className="mb-5 text-2xl font-semibold text-stone-900">
+              Previous resets
+            </h2>
+
+            {historyCheckIns.length === 0 ? (
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                <p className="text-stone-600">
+                  No history yet. Complete your first check-in to see it here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {historyCheckIns.map((checkIn) => {
+                  const completedAction = historyActions.find(
+                    (action) => action.checkInId === checkIn.id
+                  );
+
+                  return (
+                    <div
+                      key={checkIn.id}
+                      className="rounded-2xl border border-stone-200 bg-stone-50 p-5"
+                    >
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-medium capitalize text-stone-900">
+                          {checkIn.classifiedState}
+                        </p>
+
+                        <p className="text-sm text-stone-500">
+                          {new Date(checkIn.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+
+                      <div className="grid gap-2 text-sm text-stone-600 sm:grid-cols-2">
+                        <p>
+                          Energy:{" "}
+                          <span className="capitalize">
+                            {checkIn.energy}
+                          </span>
+                        </p>
+
+                        <p>
+                          Mood:{" "}
+                          <span className="capitalize">
+                            {checkIn.mood}
+                          </span>
+                        </p>
+
+                        <p>
+                          Mental load:{" "}
+                          <span className="capitalize">
+                            {checkIn.mentalLoad}
+                          </span>
+                        </p>
+
+                        <p>
+                          Available time: {checkIn.availableTime} min
+                        </p>
+                      </div>
+
+                      <div className="mt-4 border-t border-stone-200 pt-4">
+                        {completedAction ? (
+                          <>
+                            <p className="text-xs font-medium uppercase tracking-wide text-stone-500">
+                              Completed action
+                            </p>
+
+                            <p className="mt-1 font-medium text-stone-900">
+                              {completedAction.activity}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-sm text-stone-500">
+                            No action completed for this check-in.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </main>
