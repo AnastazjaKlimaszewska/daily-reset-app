@@ -13,6 +13,7 @@ import {
   saveCompletedAction,
   getAllCheckIns,
   getAllCompletedActions,
+  clearDailyResetData,
 } from "../lib/storage";
 
 vi.mock("../lib/storage", () => ({
@@ -20,6 +21,7 @@ vi.mock("../lib/storage", () => ({
   saveCompletedAction: vi.fn().mockResolvedValue(undefined),
   getAllCheckIns: vi.fn().mockResolvedValue([]),
   getAllCompletedActions: vi.fn().mockResolvedValue([]),
+  clearDailyResetData: vi.fn().mockResolvedValue(undefined),
 }));
 
 function completeCheckIn() {
@@ -232,8 +234,46 @@ describe("Daily Reset", () => {
     expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText("67%")).toBeInTheDocument();
 
-    expect(
-      screen.getAllByText("recovery").length
-    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("recovery").length).toBeGreaterThan(0);
+  });
+
+  test("does not clear data when deletion is cancelled", async () => {
+    const confirmMock = vi
+      .spyOn(window, "confirm")
+      .mockReturnValue(false);
+
+    render(<Home />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear all local data" })
+    );
+
+    expect(confirmMock).toHaveBeenCalledTimes(1);
+    expect(clearDailyResetData).not.toHaveBeenCalled();
+
+    confirmMock.mockRestore();
+  });
+
+  test("clears local data after confirmation", async () => {
+    const confirmMock = vi
+      .spyOn(window, "confirm")
+      .mockReturnValue(true);
+
+    render(<Home />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear all local data" })
+    );
+
+    await waitFor(() => {
+      expect(clearDailyResetData).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(getAllCheckIns).toHaveBeenCalled();
+      expect(getAllCompletedActions).toHaveBeenCalled();
+    });
+
+    confirmMock.mockRestore();
   });
 });

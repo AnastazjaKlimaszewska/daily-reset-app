@@ -18,6 +18,7 @@ import {
   saveCompletedAction,
   getAllCheckIns,
   getAllCompletedActions,
+  clearDailyResetData,
 } from "../lib/storage";
 
 export default function Home() {
@@ -27,6 +28,7 @@ export default function Home() {
   const [availableTime, setAvailableTime] = useState<5 | 10 | 20 | null>(null);
 
   const [currentCheckIn, setCurrentCheckIn] = useState<CheckIn | null>(null);
+
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [classifiedState, setClassifiedState] = useState<string | null>(null);
 
@@ -37,6 +39,7 @@ export default function Home() {
 
   const [historyCheckIns, setHistoryCheckIns] = useState<CheckIn[]>([]);
   const [historyActions, setHistoryActions] = useState<CompletedAction[]>([]);
+
   const totalCheckIns = historyCheckIns.length;
   const totalCompletedActions = historyActions.length;
 
@@ -63,6 +66,7 @@ export default function Home() {
       : (Object.entries(stateCounts).sort(
           (a, b) => b[1] - a[1]
         )[0][0] as "recovery" | "balanced" | "active");
+
   const isComplete =
     energy !== null &&
     mood !== null &&
@@ -134,6 +138,26 @@ export default function Home() {
     await saveCompletedAction(completedAction);
 
     setCompleted(true);
+
+    await loadHistory();
+  };
+
+  const handleClearData = async () => {
+    const confirmed = window.confirm(
+      "Delete all Daily Reset data? This cannot be undone."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    await clearDailyResetData();
+
+    setCurrentCheckIn(null);
+    setRecommendations([]);
+    setClassifiedState(null);
+    setSelectedRecommendation(null);
+    setCompleted(false);
 
     await loadHistory();
   };
@@ -248,9 +272,7 @@ export default function Home() {
 
           {classifiedState && recommendations.length > 0 && (
             <section className="mt-10 border-t border-stone-200 pt-8">
-              <p className="mb-2 text-sm text-stone-500">
-                CURRENT STATE
-              </p>
+              <p className="mb-2 text-sm text-stone-500">CURRENT STATE</p>
 
               <h2 className="mb-5 text-2xl font-semibold capitalize text-stone-900">
                 {classifiedState}
@@ -315,8 +337,6 @@ export default function Home() {
           )}
 
           <section className="mt-10 border-t border-stone-200 pt-8">
-            <p className="mb-2 text-sm text-stone-500">HISTORY</p>
-          <section className="mt-10 border-t border-stone-200 pt-8">
             <p className="mb-2 text-sm text-stone-500">STATISTICS</p>
 
             <h2 className="mb-5 text-2xl font-semibold text-stone-900">
@@ -353,6 +373,10 @@ export default function Home() {
               </div>
             </div>
           </section>
+
+          <section className="mt-10 border-t border-stone-200 pt-8">
+            <p className="mb-2 text-sm text-stone-500">HISTORY</p>
+
             <h2 className="mb-5 text-2xl font-semibold text-stone-900">
               Previous resets
             </h2>
@@ -434,6 +458,25 @@ export default function Home() {
                 })}
               </div>
             )}
+          </section>
+
+          <section className="mt-10 border-t border-stone-200 pt-8">
+            <p className="mb-2 text-sm text-stone-500">DATA</p>
+
+            <h2 className="mb-3 text-2xl font-semibold text-stone-900">
+              Local data
+            </h2>
+
+            <p className="mb-5 text-stone-600">
+              Your Daily Reset data is stored only in this browser.
+            </p>
+
+            <button
+              onClick={handleClearData}
+              className="w-full rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-medium text-red-700 transition hover:bg-red-100"
+            >
+              Clear all local data
+            </button>
           </section>
         </div>
       </div>
