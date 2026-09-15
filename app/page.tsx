@@ -6,21 +6,32 @@ import {
   type MoodLevel,
   type MentalLoadLevel,
   type CheckIn,
+  type CompletedAction,
 } from "../lib/db";
 import {
   classifyState,
   getRecommendations,
   type Recommendation,
 } from "../lib/recommendations";
-import { saveCheckIn } from "../lib/storage";
+import {
+  saveCheckIn,
+  saveCompletedAction,
+} from "../lib/storage";
 
 export default function Home() {
   const [energy, setEnergy] = useState<EnergyLevel | null>(null);
   const [mood, setMood] = useState<MoodLevel | null>(null);
   const [mentalLoad, setMentalLoad] = useState<MentalLoadLevel | null>(null);
   const [availableTime, setAvailableTime] = useState<5 | 10 | 20 | null>(null);
+
+  const [currentCheckIn, setCurrentCheckIn] = useState<CheckIn | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [classifiedState, setClassifiedState] = useState<string | null>(null);
+
+  const [selectedRecommendation, setSelectedRecommendation] =
+    useState<Recommendation | null>(null);
+
+  const [completed, setCompleted] = useState(false);
 
   const isComplete =
     energy !== null &&
@@ -56,8 +67,29 @@ export default function Home() {
 
     const generatedRecommendations = getRecommendations(input, state);
 
+    setCurrentCheckIn(checkIn);
     setClassifiedState(state);
     setRecommendations(generatedRecommendations);
+    setSelectedRecommendation(null);
+    setCompleted(false);
+  };
+
+  const handleCompleteAction = async () => {
+    if (!currentCheckIn || !selectedRecommendation || completed) {
+      return;
+    }
+
+    const completedAction: CompletedAction = {
+      id: crypto.randomUUID(),
+      checkInId: currentCheckIn.id,
+      activity: selectedRecommendation.activity,
+      category: selectedRecommendation.category,
+      completedAt: new Date().toISOString(),
+    };
+
+    await saveCompletedAction(completedAction);
+
+    setCompleted(true);
   };
 
   const optionClass = (selected: boolean) =>
@@ -179,21 +211,59 @@ export default function Home() {
               </h2>
 
               <div className="space-y-3">
-                {recommendations.map((recommendation) => (
-                  <div
-                    key={recommendation.activity}
-                    className="rounded-2xl border border-stone-200 bg-stone-50 p-4"
-                  >
-                    <p className="font-medium text-stone-900">
-                      {recommendation.activity}
-                    </p>
+                {recommendations.map((recommendation) => {
+                  const selected =
+                    selectedRecommendation?.activity === recommendation.activity;
 
-                    <p className="mt-1 text-sm capitalize text-stone-500">
-                      {recommendation.category}
-                    </p>
-                  </div>
-                ))}
+                  return (
+                    <button
+                      key={recommendation.activity}
+                      onClick={() => {
+                        if (!completed) {
+                          setSelectedRecommendation(recommendation);
+                        }
+                      }}
+                      className={`w-full rounded-2xl border p-4 text-left transition ${
+                        selected
+                          ? "border-stone-900 bg-stone-900 text-white"
+                          : "border-stone-200 bg-stone-50 hover:border-stone-400"
+                      }`}
+                    >
+                      <p className="font-medium">
+                        {recommendation.activity}
+                      </p>
+
+                      <p
+                        className={`mt-1 text-sm capitalize ${
+                          selected ? "text-stone-300" : "text-stone-500"
+                        }`}
+                      >
+                        {recommendation.category}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
+
+              <button
+                onClick={handleCompleteAction}
+                disabled={!selectedRecommendation || completed}
+                className={`mt-5 w-full rounded-2xl px-5 py-4 font-medium transition ${
+                  selectedRecommendation && !completed
+                    ? "bg-stone-900 text-white hover:bg-stone-800"
+                    : "cursor-not-allowed bg-stone-200 text-stone-400"
+                }`}
+              >
+                {completed ? "Action completed" : "Mark as completed"}
+              </button>
+
+              {completed && (
+                <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-4">
+                  <p className="font-medium text-green-800">
+                    Your completed action has been saved.
+                  </p>
+                </div>
+              )}
             </section>
           )}
         </div>
