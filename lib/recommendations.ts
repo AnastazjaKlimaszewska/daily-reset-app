@@ -27,12 +27,11 @@ export function classifyState(input: CheckInInput): ClassifiedState {
   }
 
   if (
-    input.energy === "high" &&
-    input.mood === "good" &&
-    input.mentalLoad !== "high"
-  ) {
-    return "active";
-  }
+  input.energy === "high" &&
+  input.mood === "good"
+) {
+  return "active";
+}
 
   return "balanced";
 }
