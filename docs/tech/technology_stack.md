@@ -1,69 +1,102 @@
 # Technology Stack
 
-## 1. Frontend framework
+## Frontend
 
-The application uses Next.js.
+The application is built with:
 
-Next.js was selected because it provides a clear structure for React applications and makes deployment simple.
+- Next.js,
+- React,
+- TypeScript,
+- Tailwind CSS.
 
-The project uses the App Router structure.
+Next.js provides the application structure and production build process.
 
-## 2. User interface
+React is used for the user interface and local component state.
 
-React is used to build the interactive user interface.
+TypeScript provides static typing for application data and logic.
 
-React allows the application to update the displayed content when the user selects an energy level or completes an activity.
+Tailwind CSS is used for styling and responsive layout.
 
-## 3. Programming language
+## Data persistence
 
-The project uses TypeScript.
+The application uses IndexedDB for local browser persistence.
 
-TypeScript adds type checking to JavaScript and helps reduce programming errors during development.
+Dexie.js is used as a wrapper around IndexedDB to simplify:
 
-## 4. Styling
+- database configuration,
+- table definitions,
+- storing records,
+- reading records,
+- clearing local data.
 
-Tailwind CSS is used for styling the interface.
+The current persistent entities are:
 
-It allows the application to be styled directly inside components without creating large separate CSS files.
+- CheckIn,
+- CompletedAction.
 
-## 5. Data storage
+The data layer is implemented in:
 
-The application uses browser localStorage.
+- `lib/db.ts`,
+- `lib/storage.ts`.
 
-localStorage stores the history of completed activities on the user's device.
+The current MVP does not use localStorage for persistent application history.
 
-No external database is used in the current MVP.
+## Recommendation logic
 
-## 6. Development environment
+Recommendation logic is implemented in:
 
-The project is developed using:
+`lib/recommendations.ts`
 
-- Visual Studio Code,
-- Node.js,
-- npm,
-- Git,
-- GitHub.
+It contains:
 
-## 7. Deployment
+- deterministic state classification,
+- recommendation generation,
+- time-aware recommendation selection.
 
-The application will be deployed as a public web application.
+The application currently does not use an external AI service.
 
-Vercel is the preferred deployment platform because it integrates directly with Next.js and GitHub.
+## Testing
 
-## 8. Technical constraints
+Automated tests use:
 
-The current version:
+- Vitest,
+- Testing Library,
+- jsdom.
 
-- does not use a backend,
-- does not use authentication,
-- does not use an external database,
-- does not use external APIs,
-- stores data only in the user's browser.
+Tests cover:
 
-## 9. Project conventions
+- recommendation logic,
+- daily check-in,
+- completed action flow,
+- history,
+- statistics,
+- local data management.
 
-The application should remain simple and focused on the MVP.
+## Deployment
 
-Each new functionality should have a separate plan in the `/docs/plans` directory before implementation.
+The application is deployed as a frontend application.
 
-Implemented functionality should remain consistent with the approved project plans.
+The current MVP does not require:
+
+- a custom backend,
+- authentication,
+- registration,
+- payments,
+- remote database infrastructure.
+
+## Architectural rationale
+
+A frontend-first architecture with IndexedDB was selected because the current project scope is intentionally narrow.
+
+This approach allows the project to demonstrate:
+
+- structured data persistence,
+- application state,
+- domain logic,
+- testing,
+- documentation,
+- deployment,
+
+without introducing unnecessary backend complexity.
+
+The architecture can later be extended with a remote backend if the product scope changes.

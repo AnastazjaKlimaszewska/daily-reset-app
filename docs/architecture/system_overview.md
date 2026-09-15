@@ -1,75 +1,186 @@
 # System Overview
 
-## 1. Purpose of the application
+## 1. Purpose
 
-Daily Reset is a simple web application that helps users choose a small self-care activity based on their current energy level.
+Daily Reset is a lightweight self-care decision-support web application.
 
-The user selects one of three energy levels: low, medium or high. The application then displays a short list of suggested activities that match the selected level. The user can mark one activity as completed, and the application stores this information in the browser history.
+Its purpose is to reduce decision overload by helping the user answer a short contextual check-in and receive a small set of realistic micro-actions.
 
-The goal of the application is to keep the interaction simple and fast. The user does not need to create an account or provide personal data.
+The application is intentionally narrow in scope.
 
-## 2. Main system components
+It focuses on one core flow:
 
-The application consists of one main frontend application built with Next.js and React.
+check-in → state classification → recommendation → action completion → history → statistics.
 
-The main components are:
+## 2. Main user flow
 
-- energy level selection,
-- activity recommendation logic,
-- activity completion,
-- history of completed activities,
-- browser local storage.
+The user:
 
-## 3. Data flow
+1. selects current energy level,
+2. selects current mood,
+3. selects current mental load,
+4. selects available time,
+5. submits the check-in,
+6. receives a classified state,
+7. receives three context-aware recommendations,
+8. selects one recommendation,
+9. marks it as completed,
+10. sees the completed action stored in history,
+11. can review simple statistics,
+12. can clear all local data.
 
-The user first selects an energy level.
+## 3. Current architecture
 
-The selected value is stored in the current application state.
+The application uses a frontend-first architecture.
 
-Based on the selected energy level, the application displays a predefined list of activities.
+Main layers:
 
-When the user marks an activity as completed, the application creates a history entry containing:
+### Presentation layer
 
-- date,
-- selected energy level,
-- completed activity.
+Implemented in:
 
-The history entry is saved in localStorage in the user's browser.
+- `app/page.tsx`
 
-When the page is opened again, the application reads previously saved history from localStorage.
+Responsibilities:
 
-## 4. Architecture
+- collecting check-in input,
+- displaying recommendations,
+- handling recommendation selection,
+- displaying completion state,
+- displaying history,
+- displaying statistics,
+- exposing local data management controls.
 
-The application uses a simple client-side architecture.
+### Domain logic layer
 
-There is no external backend, database or authentication system in the current MVP.
+Implemented in:
 
-The frontend is responsible for:
+- `lib/recommendations.ts`
 
-- displaying the interface,
-- handling user interactions,
-- selecting recommended activities,
-- saving and reading data from localStorage.
+Responsibilities:
 
-This architecture was selected because the project is intentionally small and focused on the core functionality.
+- classifying user state,
+- generating recommendations,
+- adapting recommendations to available time.
 
-## 5. Technology
+### Persistence layer
 
-The application uses:
+Implemented in:
 
-- Next.js,
-- React,
-- TypeScript,
-- Tailwind CSS,
-- localStorage.
+- `lib/db.ts`,
+- `lib/storage.ts`.
 
-## 6. MVP scope
+Responsibilities:
 
-The MVP includes:
+- IndexedDB configuration,
+- Dexie table definitions,
+- saving check-ins,
+- saving completed actions,
+- loading history,
+- clearing stored data.
 
-- selecting an energy level,
-- showing suggested activities,
-- marking an activity as completed,
-- storing completed activities in history.
+## 4. Data model
 
-Features such as user accounts, cloud synchronization, notifications, artificial intelligence recommendations and external databases are outside the current scope.
+The main entities are:
+
+### CheckIn
+
+Contains:
+
+- id,
+- createdAt,
+- energy,
+- mood,
+- mentalLoad,
+- availableTime,
+- classifiedState.
+
+### CompletedAction
+
+Contains:
+
+- id,
+- checkInId,
+- activity,
+- category,
+- completedAt.
+
+A completed action is linked to the check-in that generated it through `checkInId`.
+
+## 5. Persistence
+
+Persistent application data is stored in IndexedDB.
+
+Dexie.js is used to provide a structured interface over IndexedDB.
+
+The application does not currently require a remote database.
+
+## 6. Recommendation model
+
+The recommendation system is deterministic.
+
+The user is classified into one of three states:
+
+- recovery,
+- balanced,
+- active.
+
+The recommendation generator returns exactly three micro-actions based on:
+
+- classified state,
+- available time.
+
+The current MVP does not use an external AI model for recommendation generation.
+
+## 7. Testing
+
+Automated tests cover:
+
+- state classification,
+- recommendation generation,
+- check-in flow,
+- completed action flow,
+- history,
+- statistics,
+- local data deletion.
+
+Testing uses:
+
+- Vitest,
+- Testing Library,
+- jsdom.
+
+## 8. Deployment
+
+The application is deployed as a Next.js frontend application.
+
+The current MVP intentionally does not implement:
+
+- login,
+- registration,
+- payments,
+- remote user accounts,
+- external backend services.
+
+## 9. Architectural goals
+
+The current architecture prioritizes:
+
+- low complexity,
+- clear separation of responsibilities,
+- local-first data ownership,
+- testability,
+- maintainability,
+- consistency with the documented SDD process.
+
+## 10. Future extension points
+
+The architecture can later be extended with:
+
+- remote synchronization,
+- user accounts,
+- richer analytics,
+- more advanced recommendation logic,
+- additional views.
+
+These extensions are outside the current MVP scope.
