@@ -166,6 +166,74 @@ describe("Daily Reset", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Completed action")).toBeInTheDocument();
-    expect(screen.getByText("recovery")).toBeInTheDocument();
+    expect(screen.getAllByText("recovery").length).toBeGreaterThan(0);
+  });
+
+  test("shows statistics based on stored history", async () => {
+    vi.mocked(getAllCheckIns).mockResolvedValue([
+      {
+        id: "check-in-1",
+        createdAt: "2026-09-15T20:00:00.000Z",
+        energy: "low",
+        mood: "neutral",
+        mentalLoad: "high",
+        availableTime: 10,
+        classifiedState: "recovery",
+      },
+      {
+        id: "check-in-2",
+        createdAt: "2026-09-15T21:00:00.000Z",
+        energy: "medium",
+        mood: "good",
+        mentalLoad: "medium",
+        availableTime: 20,
+        classifiedState: "balanced",
+      },
+      {
+        id: "check-in-3",
+        createdAt: "2026-09-15T22:00:00.000Z",
+        energy: "low",
+        mood: "low",
+        mentalLoad: "high",
+        availableTime: 5,
+        classifiedState: "recovery",
+      },
+    ]);
+
+    vi.mocked(getAllCompletedActions).mockResolvedValue([
+      {
+        id: "action-1",
+        checkInId: "check-in-1",
+        activity: "Take a 10 minute walk",
+        category: "movement",
+        completedAt: "2026-09-15T20:10:00.000Z",
+      },
+      {
+        id: "action-2",
+        checkInId: "check-in-2",
+        activity: "Work on one important task",
+        category: "focus",
+        completedAt: "2026-09-15T21:10:00.000Z",
+      },
+    ]);
+
+    render(<Home />);
+
+    expect(
+      await screen.findByText("Your reset summary")
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("Check-ins")).toBeInTheDocument();
+    expect(screen.getByText("Completed actions")).toBeInTheDocument();
+    expect(screen.getByText("Completion rate")).toBeInTheDocument();
+    expect(screen.getByText("Most common state")).toBeInTheDocument();
+
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
+    expect(screen.getByText("67%")).toBeInTheDocument();
+
+    expect(
+      screen.getAllByText("recovery").length
+    ).toBeGreaterThan(0);
   });
 });

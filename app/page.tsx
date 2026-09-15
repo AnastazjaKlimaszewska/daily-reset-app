@@ -37,7 +37,32 @@ export default function Home() {
 
   const [historyCheckIns, setHistoryCheckIns] = useState<CheckIn[]>([]);
   const [historyActions, setHistoryActions] = useState<CompletedAction[]>([]);
+  const totalCheckIns = historyCheckIns.length;
+  const totalCompletedActions = historyActions.length;
 
+  const completionRate =
+    totalCheckIns === 0
+      ? 0
+      : Math.round((totalCompletedActions / totalCheckIns) * 100);
+
+  const stateCounts = historyCheckIns.reduce(
+    (counts, checkIn) => {
+      counts[checkIn.classifiedState] += 1;
+      return counts;
+    },
+    {
+      recovery: 0,
+      balanced: 0,
+      active: 0,
+    }
+  );
+
+  const mostCommonState =
+    totalCheckIns === 0
+      ? null
+      : (Object.entries(stateCounts).sort(
+          (a, b) => b[1] - a[1]
+        )[0][0] as "recovery" | "balanced" | "active");
   const isComplete =
     energy !== null &&
     mood !== null &&
@@ -291,7 +316,43 @@ export default function Home() {
 
           <section className="mt-10 border-t border-stone-200 pt-8">
             <p className="mb-2 text-sm text-stone-500">HISTORY</p>
+          <section className="mt-10 border-t border-stone-200 pt-8">
+            <p className="mb-2 text-sm text-stone-500">STATISTICS</p>
 
+            <h2 className="mb-5 text-2xl font-semibold text-stone-900">
+              Your reset summary
+            </h2>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                <p className="text-sm text-stone-500">Check-ins</p>
+                <p className="mt-1 text-3xl font-semibold text-stone-900">
+                  {totalCheckIns}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                <p className="text-sm text-stone-500">Completed actions</p>
+                <p className="mt-1 text-3xl font-semibold text-stone-900">
+                  {totalCompletedActions}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                <p className="text-sm text-stone-500">Completion rate</p>
+                <p className="mt-1 text-3xl font-semibold text-stone-900">
+                  {completionRate}%
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                <p className="text-sm text-stone-500">Most common state</p>
+                <p className="mt-1 text-3xl font-semibold capitalize text-stone-900">
+                  {mostCommonState ?? "No data"}
+                </p>
+              </div>
+            </div>
+          </section>
             <h2 className="mb-5 text-2xl font-semibold text-stone-900">
               Previous resets
             </h2>
