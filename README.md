@@ -1,138 +1,56 @@
 # Daily Reset
 
-Daily Reset is a lightweight self-care decision-support web application.
+Daily Reset is a small self-care web application that helps users choose one realistic next action based on their current state.
 
-The application helps the user complete a short contextual check-in and receive a small set of realistic micro-actions based on their current state.
-
-The project was developed using a Spec Driven Development approach.
+The project was developed as a Spec Driven Development exercise for the course "Tworzenie aplikacji internetowych".
 
 ## Live application
 
-The application is deployed with Vercel.
-
-Live URL:
 https://daily-reset-app-ten.vercel.app/
 
-## Project goal
+## Product idea
 
-The purpose of Daily Reset is to reduce decision overload.
+Daily Reset asks the user for four short inputs:
 
-Instead of presenting a large productivity or wellness system, the application focuses on one narrow flow:
-
-check-in → classification → recommendations → completion → history → statistics.
-
-## Current MVP
-
-The current MVP includes:
-
-- daily contextual check-in,
-- state classification,
-- adaptive micro-action recommendations,
-- recommendation selection,
-- completed action storage,
-- IndexedDB persistence,
-- history,
-- statistics,
-- local data clearing,
-- automated tests.
-
-## Daily check-in
-
-The user provides:
-
-- energy,
+- energy level,
 - mood,
 - mental load,
 - available time.
 
-A complete check-in is required before recommendations are generated.
-
-## State classification
-
-The application classifies the current state as:
+Based on those inputs, the application classifies the current state as:
 
 - recovery,
 - balanced,
 - active.
 
-The classification is deterministic.
+It then returns exactly three deterministic recommendations adjusted to the user's state and available time.
 
-## Recommendations
+The user can choose one action, mark it as completed, and review previous resets later.
 
-The application generates exactly three micro-actions.
+## Application structure
 
-Recommendations depend on:
+The current MVP uses a multi-page structure:
 
-- classified state,
-- available time.
+- `/` — Dashboard
+- `/check-in` — Daily Check-in
+- `/history` — Reset History
+- `/insights` — Insights
+- `/settings` — Settings
 
-Recommendation categories include:
+A shared responsive navigation component connects all application views.
 
-- rest,
-- movement,
-- focus,
-- environment.
+## Main features
 
-## Completed actions
-
-The user can select one recommendation and mark it as completed.
-
-The completed action is linked to the check-in that generated it.
-
-## Data persistence
-
-The current MVP uses IndexedDB through Dexie.js.
-
-Persistent entities:
-
-### CheckIn
-
-- id
-- createdAt
-- energy
-- mood
-- mentalLoad
-- availableTime
-- classifiedState
-
-### CompletedAction
-
-- id
-- checkInId
-- activity
-- category
-- completedAt
-
-The application does not require a remote backend for the current MVP.
-
-## History
-
-Previous check-ins are displayed in reverse chronological order.
-
-History entries include:
-
-- date and time,
-- classified state,
-- energy,
-- mood,
-- mental load,
-- available time,
-- completed action if available.
-
-## Statistics
-
-The application displays:
-
-- total check-ins,
-- total completed actions,
-- completion rate,
-- most common classified state.
-
-## Local data management
-
-The user can clear all locally stored Daily Reset data.
-
-Deletion requires explicit confirmation.
+- Daily check-in
+- Deterministic state classification
+- Adaptive recommendations
+- Completed action tracking
+- IndexedDB persistence
+- Reset history
+- Statistics and insights
+- Local data management
+- Responsive multi-page interface
+- Automated tests
 
 ## Technology stack
 
@@ -140,40 +58,156 @@ Deletion requires explicit confirmation.
 - React
 - TypeScript
 - Tailwind CSS
-- Dexie.js
 - IndexedDB
+- Dexie
 - Vitest
 - Testing Library
-- jsdom
 - Vercel
 
-## Project structure
+## Local data
 
-```text
-app/
-  page.tsx
+The current MVP stores data locally in the browser using IndexedDB and Dexie.
 
-lib/
-  db.ts
-  recommendations.ts
-  storage.ts
+Stored data includes:
 
-tests/
-  page.test.tsx
-  recommendations.test.ts
+- check-ins,
+- classified states,
+- completed actions,
+- timestamps.
 
-docs/
-  architecture/
-  business/
-  plans/
-  roles/
-  tech/
+The application does not currently require:
 
-.kilocode/
-  workflows/
-    plan.md
-    implement.md
+- authentication,
+- registration,
+- payments,
+- remote backend,
+- cloud synchronization.
 
-implemented_features.md
-implemented_plans.md
-README.md
+## Recommendation logic
+
+Recommendation generation is deterministic.
+
+The logic uses:
+
+- energy,
+- mood,
+- mental load,
+- available time.
+
+The system does not use generative AI to create recommendations.
+
+This keeps the MVP:
+
+- predictable,
+- testable,
+- transparent,
+- inexpensive to run.
+
+## Spec Driven Development
+
+The project follows a Spec Driven Development workflow.
+
+Implementation plans are stored in:
+
+`docs/plans/`
+
+Each plan defines:
+
+- goal,
+- scope,
+- functional requirements,
+- non-functional requirements,
+- technical context,
+- implementation steps,
+- acceptance criteria,
+- tests.
+
+The implementation workflow is:
+
+1. Define the requirement.
+2. Create a plan.
+3. Review the plan.
+4. Implement one small feature.
+5. Run tests.
+6. Update documentation.
+7. Commit the completed change.
+
+## Documentation
+
+Project documentation is stored in:
+
+`docs/`
+
+### Architecture
+
+`docs/architecture/`
+
+Contains:
+
+- system overview,
+- architecture decision records,
+- data model.
+
+### Business
+
+`docs/business/`
+
+Contains:
+
+- business requirements,
+- product scope,
+- competitor audit,
+- ICP/persona,
+- MVP scoping,
+- user journey,
+- GTM strategy,
+- kill-the-idea summary.
+
+### Technical documentation
+
+`docs/tech/`
+
+Contains:
+
+- technology stack,
+- technical constraints,
+- resource analysis,
+- technology stack audit.
+
+### Plans
+
+`docs/plans/`
+
+Contains implementation plans for individual features.
+
+### Roles
+
+`docs/roles/`
+
+Contains documentation for:
+
+- Product Owner,
+- UX/UI,
+- Architect,
+- Developer,
+- Tester.
+
+## AI-assisted development workflow
+
+The repository also contains reusable AI workflows in:
+
+`.kilocode/workflows/`
+
+Available workflows include:
+
+- planning,
+- implementation.
+
+The purpose of these workflows is to help an AI coding agent follow the project's SDD process instead of implementing features without a documented plan.
+
+## Testing
+
+Run all automated tests with:
+
+```bash
+npx vitest run

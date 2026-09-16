@@ -1,191 +1,166 @@
 # Implemented Features
 
-This file describes the current implementation status of Daily Reset.
+This document summarizes functionality currently implemented in the Daily Reset MVP.
 
-## 1. Daily Check-In
+## 1. Application Shell and Navigation
 
-Status: DONE
+The application uses a multi-page structure with shared navigation.
 
-Plan:
-`docs/plans/PLAN_daily_checkin.md`
+Available routes:
 
-Description:
+- `/` — Dashboard
+- `/check-in` — Daily Check-in
+- `/history` — Reset History
+- `/insights` — Insights
+- `/settings` — Settings
 
-The user provides four pieces of context:
+The navigation is responsive and highlights the active section.
 
-- energy,
+## 2. Dashboard
+
+The dashboard provides an overview of the user's local Daily Reset data.
+
+It displays:
+
+- total number of check-ins,
+- total number of completed actions,
+- completion rate,
+- latest classified state,
+- latest completed action,
+- links to the main application features.
+
+## 3. Daily Check-in
+
+Users can describe their current situation using four inputs:
+
+- energy level,
 - mood,
 - mental load,
 - available time.
 
-A complete check-in is required before recommendations can be generated.
+Available time options:
 
-## 2. State Classification
+- 5 minutes,
+- 10 minutes,
+- 20 minutes.
 
-Status: DONE
+The check-in is stored locally after submission.
 
-Plan:
-`docs/plans/PLAN_state_classification_and_recommendations.md`
+## 4. State Classification
 
-Description:
-
-The application classifies the user's current state as:
+The application classifies each check-in into one of three states:
 
 - recovery,
 - balanced,
 - active.
 
-The classification is deterministic and based on the submitted check-in values.
+Classification is deterministic and rule-based.
 
-## 3. Adaptive Recommendations
+No generative AI model is required to classify user input.
 
-Status: DONE
+## 5. Adaptive Recommendations
 
-Plan:
-`docs/plans/PLAN_state_classification_and_recommendations.md`
+After a completed check-in, the application generates exactly three recommendations.
 
-Description:
-
-The application generates exactly three micro-action recommendations based on:
+Recommendations depend on:
 
 - classified state,
 - available time.
 
-Recommendations are grouped into categories such as:
+The user can select one recommended action.
 
-- rest,
-- movement,
-- focus,
-- environment.
+## 6. Completed Action Tracking
 
-## 4. Completed Action Flow
+A selected recommendation can be marked as completed.
 
-Status: DONE
+The application stores:
 
-Plan:
-`docs/plans/PLAN_completed_action_storage.md`
+- completed activity,
+- category,
+- related check-in,
+- completion timestamp.
 
-Description:
+## 7. IndexedDB Persistence
 
-The user can:
+Daily Reset uses IndexedDB through Dexie.
 
-- select one recommendation,
-- mark it as completed,
-- receive completion confirmation.
-
-The completed action is linked to the check-in that generated it.
-
-## 5. IndexedDB Persistence
-
-Status: DONE
-
-Plan:
-`docs/plans/PLAN_indexeddb_storage.md`
-
-Description:
-
-The application uses IndexedDB through Dexie.js.
-
-Stored data includes:
+The local database stores:
 
 - check-ins,
 - completed actions.
 
-The storage layer is implemented in:
+The current MVP does not require a remote backend.
 
-- `lib/db.ts`,
-- `lib/storage.ts`.
+## 8. History
 
-## 6. History View
-
-Status: DONE
-
-Plan:
-`docs/plans/PLAN_history_view.md`
-
-Description:
-
-The application loads previous check-ins from IndexedDB and displays them in reverse chronological order.
+The History page displays previous check-ins.
 
 Each history entry includes:
 
-- classified state,
 - date and time,
+- classified state,
 - energy,
 - mood,
 - mental load,
 - available time,
 - completed action when available.
 
-## 7. Statistics
+## 9. Insights
 
-Status: DONE
+The Insights page summarizes locally stored data.
 
-Plan:
-`docs/plans/PLAN_statistics.md`
-
-Description:
-
-The application calculates and displays:
+It includes:
 
 - total check-ins,
-- total completed actions,
+- completed actions,
 - completion rate,
-- most common classified state.
+- distribution of recovery, balanced and active states,
+- most common state,
+- completed action categories.
 
-Statistics are derived from the locally stored history.
+Insights are calculated from saved user data and do not use predictive AI.
 
-## 8. Local Data Management
+## 10. Local Data Management
 
-Status: DONE
+The Settings page explains how application data is stored.
 
-Plan:
-`docs/plans/PLAN_local_data_management.md`
+Users can clear all Daily Reset data from the current browser.
 
-Description:
+Clearing local data removes:
 
-The user can clear all locally stored Daily Reset data after explicit confirmation.
+- check-ins,
+- completed actions.
 
-The action removes:
+## 11. Automated Tests
 
-- all check-ins,
-- all completed actions.
+The project includes automated tests using Vitest and Testing Library.
 
-History and statistics reset immediately after deletion.
-
-## 9. Automated Tests
-
-Status: DONE
-
-Description:
-
-The project includes automated tests for:
+Tests cover:
 
 - recommendation logic,
+- dashboard,
 - check-in flow,
-- recommendation generation,
-- completed action storage,
-- history rendering,
-- statistics,
-- local data clearing.
+- history,
+- insights,
+- settings,
+- local data operations and user interactions.
 
-Tests are run with Vitest and Testing Library.
+The complete test suite passes successfully.
 
-## 10. Production Build
+## 12. Production Build
 
-Status: DONE
+The application successfully passes the Next.js production build.
 
-Description:
+The project is deployable through Vercel.
 
-The application successfully passes the production build using Next.js.
+## MVP Boundaries
 
-## Prototype features
+The current MVP intentionally does not implement:
 
-The repository also contains plans from the earlier prototype:
+- authentication,
+- registration,
+- payments,
+- cloud synchronization,
+- generative AI recommendations.
 
-- energy selection,
-- simple activity recommendations,
-- basic activity completion,
-- localStorage-based history.
-
-These files are preserved as development history but have been superseded by the current MVP architecture.
+These exclusions keep the product aligned with the defined MVP scope and course requirements.

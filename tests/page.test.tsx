@@ -1,199 +1,64 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
-import "@testing-library/jest-dom/vitest";
-import Home from "../app/page";
-import {
-  saveCheckIn,
-  saveCompletedAction,
-  getAllCheckIns,
-  getAllCompletedActions,
-  clearDailyResetData,
-} from "../lib/storage";
+import { render, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import HomePage from "../app/page";
 
 vi.mock("../lib/storage", () => ({
-  saveCheckIn: vi.fn().mockResolvedValue(undefined),
-  saveCompletedAction: vi.fn().mockResolvedValue(undefined),
-  getAllCheckIns: vi.fn().mockResolvedValue([]),
-  getAllCompletedActions: vi.fn().mockResolvedValue([]),
-  clearDailyResetData: vi.fn().mockResolvedValue(undefined),
+  getAllCheckIns: vi.fn(),
+  getAllCompletedActions: vi.fn(),
 }));
 
-function completeCheckIn() {
-  const energySection = screen.getByText("Energy").closest("section");
-  const moodSection = screen.getByText("Mood").closest("section");
-  const mentalLoadSection = screen.getByText("Mental load").closest("section");
-  const timeSection = screen.getByText("Available time").closest("section");
+import {
+  getAllCheckIns,
+  getAllCompletedActions,
+} from "../lib/storage";
 
-  if (!energySection || !moodSection || !mentalLoadSection || !timeSection) {
-    throw new Error("Check-in section not found");
-  }
+const mockedGetAllCheckIns = vi.mocked(getAllCheckIns);
+const mockedGetAllCompletedActions = vi.mocked(getAllCompletedActions);
 
-  fireEvent.click(
-    within(energySection).getByRole("button", { name: "high" })
-  );
-
-  fireEvent.click(
-    within(moodSection).getByRole("button", { name: "good" })
-  );
-
-  fireEvent.click(
-    within(mentalLoadSection).getByRole("button", { name: "medium" })
-  );
-
-  fireEvent.click(
-    within(timeSection).getByRole("button", { name: "10 minutes" })
-  );
-}
-
-describe("Daily Reset", () => {
+describe("Dashboard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    vi.mocked(getAllCheckIns).mockResolvedValue([]);
-    vi.mocked(getAllCompletedActions).mockResolvedValue([]);
   });
 
-  test("shows the complete daily check-in and empty history", async () => {
-    render(<Home />);
+  it("renders the main dashboard", async () => {
+    mockedGetAllCheckIns.mockResolvedValue([]);
+    mockedGetAllCompletedActions.mockResolvedValue([]);
 
-    expect(screen.getByText("Energy")).toBeInTheDocument();
-    expect(screen.getByText("Mood")).toBeInTheDocument();
-    expect(screen.getByText("Mental load")).toBeInTheDocument();
-    expect(screen.getByText("Available time")).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", { name: "Get recommendations" })
-    ).toBeDisabled();
-
-    expect(
-      await screen.findByText(
-        "No history yet. Complete your first check-in to see it here."
-      )
-    ).toBeInTheDocument();
-  });
-
-  test("generates recommendations after completing the check-in", async () => {
-    render(<Home />);
-
-    completeCheckIn();
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Get recommendations" })
-    );
+    render(<HomePage />);
 
     await waitFor(() => {
-      expect(saveCheckIn).toHaveBeenCalledTimes(1);
+      expect(document.body.textContent).toContain("One useful move");
+      expect(document.body.textContent).toContain("is enough.");
+      expect(document.body.textContent).toContain("Current reset status");
     });
-
-    expect(screen.getByText("active")).toBeInTheDocument();
-    expect(
-      screen.getByText("Work on one important task")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Do a short workout")).toBeInTheDocument();
-    expect(
-      screen.getByText("Plan the next part of your day")
-    ).toBeInTheDocument();
   });
 
-  test("stores a selected completed action", async () => {
-    render(<Home />);
+  it("shows empty state when there is no saved data", async () => {
+    mockedGetAllCheckIns.mockResolvedValue([]);
+    mockedGetAllCompletedActions.mockResolvedValue([]);
 
-    completeCheckIn();
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Get recommendations" })
-    );
-
-    await screen.findByText("Do a short workout");
-
-    fireEvent.click(
-      screen.getByRole("button", { name: /Do a short workout/i })
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Mark as completed" })
-    );
+    render(<HomePage />);
 
     await waitFor(() => {
-      expect(saveCompletedAction).toHaveBeenCalledTimes(1);
+      expect(document.body.textContent).toContain("No data yet");
+      expect(document.body.textContent).toContain("Nothing completed yet");
     });
-
-    expect(saveCompletedAction).toHaveBeenCalledWith(
-      expect.objectContaining({
-        checkInId: expect.any(String),
-        activity: "Do a short workout",
-        category: "movement",
-        completedAt: expect.any(String),
-      })
-    );
-
-    expect(
-      screen.getByText("Your completed action has been saved.")
-    ).toBeInTheDocument();
   });
 
-  test("shows stored check-in history with its completed action", async () => {
-    vi.mocked(getAllCheckIns).mockResolvedValue([
+  it("shows saved check-in data", async () => {
+    mockedGetAllCheckIns.mockResolvedValue([
       {
-        id: "check-in-1",
-        createdAt: "2026-09-15T20:00:00.000Z",
-        energy: "low",
-        mood: "neutral",
-        mentalLoad: "high",
-        availableTime: 10,
-        classifiedState: "recovery",
-      },
-    ]);
-
-    vi.mocked(getAllCompletedActions).mockResolvedValue([
-      {
-        id: "action-1",
-        checkInId: "check-in-1",
-        activity: "Take a 10 minute walk",
-        category: "movement",
-        completedAt: "2026-09-15T20:10:00.000Z",
-      },
-    ]);
-
-    render(<Home />);
-
-    expect(
-      await screen.findByText("Take a 10 minute walk")
-    ).toBeInTheDocument();
-
-    expect(screen.getByText("Completed action")).toBeInTheDocument();
-    expect(screen.getAllByText("recovery").length).toBeGreaterThan(0);
-  });
-
-  test("shows statistics based on stored history", async () => {
-    vi.mocked(getAllCheckIns).mockResolvedValue([
-      {
-        id: "check-in-1",
-        createdAt: "2026-09-15T20:00:00.000Z",
-        energy: "low",
-        mood: "neutral",
-        mentalLoad: "high",
-        availableTime: 10,
-        classifiedState: "recovery",
-      },
-      {
-        id: "check-in-2",
-        createdAt: "2026-09-15T21:00:00.000Z",
+        id: "check-1",
+        createdAt: "2026-09-17T10:00:00.000Z",
         energy: "medium",
-        mood: "good",
+        mood: "neutral",
         mentalLoad: "medium",
-        availableTime: 20,
+        availableTime: 10,
         classifiedState: "balanced",
       },
       {
-        id: "check-in-3",
-        createdAt: "2026-09-15T22:00:00.000Z",
+        id: "check-2",
+        createdAt: "2026-09-16T10:00:00.000Z",
         energy: "low",
         mood: "low",
         mentalLoad: "high",
@@ -202,78 +67,123 @@ describe("Daily Reset", () => {
       },
     ]);
 
-    vi.mocked(getAllCompletedActions).mockResolvedValue([
+    mockedGetAllCompletedActions.mockResolvedValue([]);
+
+    render(<HomePage />);
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain("Check-ins");
+      expect(document.body.textContent).toContain("2");
+      expect(document.body.textContent).toContain("balanced");
+    });
+  });
+
+  it("shows the latest classified state", async () => {
+    mockedGetAllCheckIns.mockResolvedValue([
       {
-        id: "action-1",
-        checkInId: "check-in-1",
-        activity: "Take a 10 minute walk",
-        category: "movement",
-        completedAt: "2026-09-15T20:10:00.000Z",
-      },
-      {
-        id: "action-2",
-        checkInId: "check-in-2",
-        activity: "Work on one important task",
-        category: "focus",
-        completedAt: "2026-09-15T21:10:00.000Z",
+        id: "check-1",
+        createdAt: "2026-09-17T10:00:00.000Z",
+        energy: "high",
+        mood: "good",
+        mentalLoad: "low",
+        availableTime: 20,
+        classifiedState: "active",
       },
     ]);
 
-    render(<Home />);
+    mockedGetAllCompletedActions.mockResolvedValue([]);
 
-    expect(
-      await screen.findByText("Your reset summary")
-    ).toBeInTheDocument();
-
-    expect(screen.getByText("Check-ins")).toBeInTheDocument();
-    expect(screen.getByText("Completed actions")).toBeInTheDocument();
-    expect(screen.getByText("Completion rate")).toBeInTheDocument();
-    expect(screen.getByText("Most common state")).toBeInTheDocument();
-
-    expect(screen.getByText("3")).toBeInTheDocument();
-    expect(screen.getByText("2")).toBeInTheDocument();
-    expect(screen.getByText("67%")).toBeInTheDocument();
-
-    expect(screen.getAllByText("recovery").length).toBeGreaterThan(0);
-  });
-
-  test("does not clear data when deletion is cancelled", async () => {
-    const confirmMock = vi
-      .spyOn(window, "confirm")
-      .mockReturnValue(false);
-
-    render(<Home />);
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Clear all local data" })
-    );
-
-    expect(confirmMock).toHaveBeenCalledTimes(1);
-    expect(clearDailyResetData).not.toHaveBeenCalled();
-
-    confirmMock.mockRestore();
-  });
-
-  test("clears local data after confirmation", async () => {
-    const confirmMock = vi
-      .spyOn(window, "confirm")
-      .mockReturnValue(true);
-
-    render(<Home />);
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "Clear all local data" })
-    );
+    render(<HomePage />);
 
     await waitFor(() => {
-      expect(clearDailyResetData).toHaveBeenCalledTimes(1);
+      expect(document.body.textContent).toContain("Latest state");
+      expect(document.body.textContent).toContain("active");
     });
+  });
+
+  it("shows the latest completed action", async () => {
+    mockedGetAllCheckIns.mockResolvedValue([
+      {
+        id: "check-1",
+        createdAt: "2026-09-17T10:00:00.000Z",
+        energy: "medium",
+        mood: "neutral",
+        mentalLoad: "medium",
+        availableTime: 10,
+        classifiedState: "balanced",
+      },
+    ]);
+
+    mockedGetAllCompletedActions.mockResolvedValue([
+      {
+        id: "action-1",
+        checkInId: "check-1",
+        activity: "Take a short walk",
+        category: "movement",
+        completedAt: "2026-09-17T10:10:00.000Z",
+      },
+    ]);
+
+    render(<HomePage />);
 
     await waitFor(() => {
-      expect(getAllCheckIns).toHaveBeenCalled();
-      expect(getAllCompletedActions).toHaveBeenCalled();
+      expect(document.body.textContent).toContain("Last completed action");
+      expect(document.body.textContent).toContain("Take a short walk");
     });
+  });
 
-    confirmMock.mockRestore();
+  it("calculates the completion rate", async () => {
+    mockedGetAllCheckIns.mockResolvedValue([
+      {
+        id: "check-1",
+        createdAt: "2026-09-17T10:00:00.000Z",
+        energy: "medium",
+        mood: "neutral",
+        mentalLoad: "medium",
+        availableTime: 10,
+        classifiedState: "balanced",
+      },
+      {
+        id: "check-2",
+        createdAt: "2026-09-16T10:00:00.000Z",
+        energy: "low",
+        mood: "low",
+        mentalLoad: "high",
+        availableTime: 5,
+        classifiedState: "recovery",
+      },
+    ]);
+
+    mockedGetAllCompletedActions.mockResolvedValue([
+      {
+        id: "action-1",
+        checkInId: "check-1",
+        activity: "Take a short walk",
+        category: "movement",
+        completedAt: "2026-09-17T10:10:00.000Z",
+      },
+    ]);
+
+    render(<HomePage />);
+
+    await waitFor(() => {
+      expect(document.body.textContent).toContain("Completion");
+      expect(document.body.textContent).toContain("50%");
+    });
+  });
+
+  it("contains working links to check-in and history", async () => {
+    mockedGetAllCheckIns.mockResolvedValue([]);
+    mockedGetAllCompletedActions.mockResolvedValue([]);
+
+    const { container } = render(<HomePage />);
+
+    await waitFor(() => {
+      const checkInLink = container.querySelector('a[href="/check-in"]');
+      const historyLink = container.querySelector('a[href="/history"]');
+
+      expect(checkInLink).not.toBeNull();
+      expect(historyLink).not.toBeNull();
+    });
   });
 });

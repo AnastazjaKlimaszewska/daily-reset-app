@@ -1,484 +1,224 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-  type EnergyLevel,
-  type MoodLevel,
-  type MentalLoadLevel,
   type CheckIn,
   type CompletedAction,
 } from "../lib/db";
 import {
-  classifyState,
-  getRecommendations,
-  type Recommendation,
-} from "../lib/recommendations";
-import {
-  saveCheckIn,
-  saveCompletedAction,
   getAllCheckIns,
   getAllCompletedActions,
-  clearDailyResetData,
 } from "../lib/storage";
 
-export default function Home() {
-  const [energy, setEnergy] = useState<EnergyLevel | null>(null);
-  const [mood, setMood] = useState<MoodLevel | null>(null);
-  const [mentalLoad, setMentalLoad] = useState<MentalLoadLevel | null>(null);
-  const [availableTime, setAvailableTime] = useState<5 | 10 | 20 | null>(null);
-
-  const [currentCheckIn, setCurrentCheckIn] = useState<CheckIn | null>(null);
-
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [classifiedState, setClassifiedState] = useState<string | null>(null);
-
-  const [selectedRecommendation, setSelectedRecommendation] =
-    useState<Recommendation | null>(null);
-
-  const [completed, setCompleted] = useState(false);
-
-  const [historyCheckIns, setHistoryCheckIns] = useState<CheckIn[]>([]);
-  const [historyActions, setHistoryActions] = useState<CompletedAction[]>([]);
-
-  const totalCheckIns = historyCheckIns.length;
-  const totalCompletedActions = historyActions.length;
-
-  const completionRate =
-    totalCheckIns === 0
-      ? 0
-      : Math.round((totalCompletedActions / totalCheckIns) * 100);
-
-  const stateCounts = historyCheckIns.reduce(
-    (counts, checkIn) => {
-      counts[checkIn.classifiedState] += 1;
-      return counts;
-    },
-    {
-      recovery: 0,
-      balanced: 0,
-      active: 0,
-    }
-  );
-
-  const mostCommonState =
-    totalCheckIns === 0
-      ? null
-      : (Object.entries(stateCounts).sort(
-          (a, b) => b[1] - a[1]
-        )[0][0] as "recovery" | "balanced" | "active");
-
-  const isComplete =
-    energy !== null &&
-    mood !== null &&
-    mentalLoad !== null &&
-    availableTime !== null;
-
-  const loadHistory = async () => {
-    const checkIns = await getAllCheckIns();
-    const actions = await getAllCompletedActions();
-
-    setHistoryCheckIns(checkIns);
-    setHistoryActions(actions);
-  };
+export default function HomePage() {
+  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
+  const [actions, setActions] = useState<CompletedAction[]>([]);
 
   useEffect(() => {
-    loadHistory();
+    const loadDashboard = async () => {
+      const storedCheckIns = await getAllCheckIns();
+      const storedActions = await getAllCompletedActions();
+
+      setCheckIns(storedCheckIns);
+      setActions(storedActions);
+    };
+
+    loadDashboard();
   }, []);
 
-  const handleSubmit = async () => {
-    if (!isComplete || !energy || !mood || !mentalLoad || !availableTime) {
-      return;
-    }
+  const latestCheckIn = checkIns[0] ?? null;
+  const latestAction = actions[0] ?? null;
 
-    const input = {
-      energy,
-      mood,
-      mentalLoad,
-      availableTime,
-    };
-
-    const state = classifyState(input);
-
-    const checkIn: CheckIn = {
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      energy,
-      mood,
-      mentalLoad,
-      availableTime,
-      classifiedState: state,
-    };
-
-    await saveCheckIn(checkIn);
-
-    const generatedRecommendations = getRecommendations(input, state);
-
-    setCurrentCheckIn(checkIn);
-    setClassifiedState(state);
-    setRecommendations(generatedRecommendations);
-    setSelectedRecommendation(null);
-    setCompleted(false);
-
-    await loadHistory();
-  };
-
-  const handleCompleteAction = async () => {
-    if (!currentCheckIn || !selectedRecommendation || completed) {
-      return;
-    }
-
-    const completedAction: CompletedAction = {
-      id: crypto.randomUUID(),
-      checkInId: currentCheckIn.id,
-      activity: selectedRecommendation.activity,
-      category: selectedRecommendation.category,
-      completedAt: new Date().toISOString(),
-    };
-
-    await saveCompletedAction(completedAction);
-
-    setCompleted(true);
-
-    await loadHistory();
-  };
-
-  const handleClearData = async () => {
-    const confirmed = window.confirm(
-      "Delete all Daily Reset data? This cannot be undone."
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    await clearDailyResetData();
-
-    setCurrentCheckIn(null);
-    setRecommendations([]);
-    setClassifiedState(null);
-    setSelectedRecommendation(null);
-    setCompleted(false);
-
-    await loadHistory();
-  };
-
-  const optionClass = (selected: boolean) =>
-    `rounded-2xl border p-4 text-left transition ${
-      selected
-        ? "border-stone-900 bg-stone-900 text-white"
-        : "border-stone-200 bg-white hover:border-stone-400"
-    }`;
+  const completionRate =
+    checkIns.length === 0
+      ? 0
+      : Math.round((actions.length / checkIns.length) * 100);
 
   return (
-    <main className="min-h-screen bg-stone-100 px-6 py-10">
-      <div className="mx-auto max-w-2xl">
-        <div className="rounded-3xl bg-white p-8 shadow-sm">
-          <p className="mb-2 text-sm text-stone-500">DAILY RESET</p>
-
-          <h1 className="mb-3 text-4xl font-semibold text-stone-900">
-            How are you right now?
-          </h1>
-
-          <p className="mb-8 text-stone-600">
-            Complete a short check-in and get a few realistic actions for your
-            current situation.
-          </p>
-
-          <section className="mb-8">
-            <h2 className="mb-3 text-lg font-semibold text-stone-900">
-              Energy
-            </h2>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {(["low", "medium", "high"] as EnergyLevel[]).map((value) => (
-                <button
-                  key={value}
-                  onClick={() => setEnergy(value)}
-                  className={optionClass(energy === value)}
-                >
-                  <span className="capitalize">{value}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="mb-3 text-lg font-semibold text-stone-900">
-              Mood
-            </h2>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {(["low", "neutral", "good"] as MoodLevel[]).map((value) => (
-                <button
-                  key={value}
-                  onClick={() => setMood(value)}
-                  className={optionClass(mood === value)}
-                >
-                  <span className="capitalize">{value}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="mb-3 text-lg font-semibold text-stone-900">
-              Mental load
-            </h2>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {(["low", "medium", "high"] as MentalLoadLevel[]).map(
-                (value) => (
-                  <button
-                    key={value}
-                    onClick={() => setMentalLoad(value)}
-                    className={optionClass(mentalLoad === value)}
-                  >
-                    <span className="capitalize">{value}</span>
-                  </button>
-                )
-              )}
-            </div>
-          </section>
-
-          <section className="mb-8">
-            <h2 className="mb-3 text-lg font-semibold text-stone-900">
-              Available time
-            </h2>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {([5, 10, 20] as const).map((value) => (
-                <button
-                  key={value}
-                  onClick={() => setAvailableTime(value)}
-                  className={optionClass(availableTime === value)}
-                >
-                  {value} minutes
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <button
-            onClick={handleSubmit}
-            disabled={!isComplete}
-            className={`w-full rounded-2xl px-5 py-4 font-medium transition ${
-              isComplete
-                ? "bg-stone-900 text-white hover:bg-stone-800"
-                : "cursor-not-allowed bg-stone-200 text-stone-400"
-            }`}
-          >
-            Get recommendations
-          </button>
-
-          {classifiedState && recommendations.length > 0 && (
-            <section className="mt-10 border-t border-stone-200 pt-8">
-              <p className="mb-2 text-sm text-stone-500">CURRENT STATE</p>
-
-              <h2 className="mb-5 text-2xl font-semibold capitalize text-stone-900">
-                {classifiedState}
-              </h2>
-
-              <div className="space-y-3">
-                {recommendations.map((recommendation) => {
-                  const selected =
-                    selectedRecommendation?.activity ===
-                    recommendation.activity;
-
-                  return (
-                    <button
-                      key={recommendation.activity}
-                      onClick={() => {
-                        if (!completed) {
-                          setSelectedRecommendation(recommendation);
-                        }
-                      }}
-                      className={`w-full rounded-2xl border p-4 text-left transition ${
-                        selected
-                          ? "border-stone-900 bg-stone-900 text-white"
-                          : "border-stone-200 bg-stone-50 hover:border-stone-400"
-                      }`}
-                    >
-                      <p className="font-medium">
-                        {recommendation.activity}
-                      </p>
-
-                      <p
-                        className={`mt-1 text-sm capitalize ${
-                          selected ? "text-stone-300" : "text-stone-500"
-                        }`}
-                      >
-                        {recommendation.category}
-                      </p>
-                    </button>
-                  );
-                })}
+    <main className="min-h-screen bg-[#0D1016] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px]">
+        <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#151A23]">
+          <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="p-7 sm:p-10 lg:p-12">
+              <div className="mb-7 flex items-center gap-3">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#35D07F]" />
+                <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#778194]">
+                  Current reset status
+                </span>
               </div>
 
-              <button
-                onClick={handleCompleteAction}
-                disabled={!selectedRecommendation || completed}
-                className={`mt-5 w-full rounded-2xl px-5 py-4 font-medium transition ${
-                  selectedRecommendation && !completed
-                    ? "bg-stone-900 text-white hover:bg-stone-800"
-                    : "cursor-not-allowed bg-stone-200 text-stone-400"
-                }`}
-              >
-                {completed ? "Action completed" : "Mark as completed"}
-              </button>
+              <h1 className="max-w-3xl text-4xl font-black leading-[0.98] tracking-[-0.045em] text-white sm:text-6xl">
+                One useful move
+                <br />
+                is enough.
+              </h1>
 
-              {completed && (
-                <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-4">
-                  <p className="font-medium text-green-800">
-                    Your completed action has been saved.
-                  </p>
-                </div>
-              )}
-            </section>
-          )}
+              <p className="mt-6 max-w-2xl text-base leading-7 text-[#98A1B2] sm:text-lg">
+                Check your energy, mood and mental load. Daily Reset gives you a
+                short action that actually fits the state you are in.
+              </p>
 
-          <section className="mt-10 border-t border-stone-200 pt-8">
-            <p className="mb-2 text-sm text-stone-500">STATISTICS</p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/check-in"
+                  className="rounded-xl bg-[#35D07F] px-6 py-3.5 font-bold text-[#0D1711] transition hover:bg-[#45DF8D]"
+                >
+                  Start check-in
+                </Link>
 
-            <h2 className="mb-5 text-2xl font-semibold text-stone-900">
-              Your reset summary
-            </h2>
+                <Link
+                  href="/history"
+                  className="rounded-xl border border-white/10 bg-[#1B202A] px-6 py-3.5 font-bold text-white transition hover:bg-[#232A37]"
+                >
+                  Open history
+                </Link>
+              </div>
+            </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-sm text-stone-500">Check-ins</p>
-                <p className="mt-1 text-3xl font-semibold text-stone-900">
-                  {totalCheckIns}
+            <div className="relative border-t border-white/10 bg-[#11151D] p-7 lg:border-l lg:border-t-0 lg:p-10">
+              <div className="absolute right-0 top-0 h-24 w-24 bg-[#8A7CFF]/10 blur-3xl" />
+
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#70798A]">
+                Latest state
+              </p>
+
+              <p className="mt-3 text-4xl font-black capitalize tracking-tight text-white">
+                {latestCheckIn?.classifiedState ?? "No data yet"}
+              </p>
+
+              <div className="mt-8 border-t border-white/10 pt-7">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#70798A]">
+                  Last completed action
+                </p>
+
+                <p className="mt-3 text-xl font-semibold leading-7 text-[#D8DCE4]">
+                  {latestAction?.activity ?? "Nothing completed yet"}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-sm text-stone-500">Completed actions</p>
-                <p className="mt-1 text-3xl font-semibold text-stone-900">
-                  {totalCompletedActions}
+              <div className="mt-8 rounded-2xl bg-[#1A202B] p-5">
+                <p className="text-sm font-semibold text-[#8E98A9]">
+                  Quick note
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[#C8CED8]">
+                  Your history stays local in this browser. No account is
+                  required.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-white/10 bg-[#151A23] p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70798A]">
+                  Check-ins
+                </p>
+                <p className="mt-3 text-4xl font-black text-white">
+                  {checkIns.length}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-sm text-stone-500">Completion rate</p>
-                <p className="mt-1 text-3xl font-semibold text-stone-900">
+              <div className="h-3 w-10 rounded-full bg-[#35D07F]" />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#151A23] p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70798A]">
+                  Completed
+                </p>
+                <p className="mt-3 text-4xl font-black text-white">
+                  {actions.length}
+                </p>
+              </div>
+
+              <div className="h-3 w-10 rounded-full bg-[#8A7CFF]" />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#151A23] p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70798A]">
+                  Completion
+                </p>
+                <p className="mt-3 text-4xl font-black text-white">
                   {completionRate}%
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-5">
-                <p className="text-sm text-stone-500">Most common state</p>
-                <p className="mt-1 text-3xl font-semibold capitalize text-stone-900">
-                  {mostCommonState ?? "No data"}
-                </p>
-              </div>
+              <div className="h-3 w-10 rounded-full bg-[#FFB454]" />
             </div>
-          </section>
+          </div>
 
-          <section className="mt-10 border-t border-stone-200 pt-8">
-            <p className="mb-2 text-sm text-stone-500">HISTORY</p>
-
-            <h2 className="mb-5 text-2xl font-semibold text-stone-900">
-              Previous resets
-            </h2>
-
-            {historyCheckIns.length === 0 ? (
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-                <p className="text-stone-600">
-                  No history yet. Complete your first check-in to see it here.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {historyCheckIns.map((checkIn) => {
-                  const completedAction = historyActions.find(
-                    (action) => action.checkInId === checkIn.id
-                  );
-
-                  return (
-                    <div
-                      key={checkIn.id}
-                      className="rounded-2xl border border-stone-200 bg-stone-50 p-5"
-                    >
-                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                        <p className="font-medium capitalize text-stone-900">
-                          {checkIn.classifiedState}
-                        </p>
-
-                        <p className="text-sm text-stone-500">
-                          {new Date(checkIn.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-
-                      <div className="grid gap-2 text-sm text-stone-600 sm:grid-cols-2">
-                        <p>
-                          Energy:{" "}
-                          <span className="capitalize">
-                            {checkIn.energy}
-                          </span>
-                        </p>
-
-                        <p>
-                          Mood:{" "}
-                          <span className="capitalize">
-                            {checkIn.mood}
-                          </span>
-                        </p>
-
-                        <p>
-                          Mental load:{" "}
-                          <span className="capitalize">
-                            {checkIn.mentalLoad}
-                          </span>
-                        </p>
-
-                        <p>
-                          Available time: {checkIn.availableTime} min
-                        </p>
-                      </div>
-
-                      <div className="mt-4 border-t border-stone-200 pt-4">
-                        {completedAction ? (
-                          <>
-                            <p className="text-xs font-medium uppercase tracking-wide text-stone-500">
-                              Completed action
-                            </p>
-
-                            <p className="mt-1 font-medium text-stone-900">
-                              {completedAction.activity}
-                            </p>
-                          </>
-                        ) : (
-                          <p className="text-sm text-stone-500">
-                            No action completed for this check-in.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          <section className="mt-10 border-t border-stone-200 pt-8">
-            <p className="mb-2 text-sm text-stone-500">DATA</p>
-
-            <h2 className="mb-3 text-2xl font-semibold text-stone-900">
-              Local data
-            </h2>
-
-            <p className="mb-5 text-stone-600">
-              Your Daily Reset data is stored only in this browser.
+          <div className="rounded-2xl border border-white/10 bg-[#151A23] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70798A]">
+              Storage
             </p>
 
-            <button
-              onClick={handleClearData}
-              className="w-full rounded-2xl border border-red-200 bg-red-50 px-5 py-4 font-medium text-red-700 transition hover:bg-red-100"
-            >
-              Clear all local data
-            </button>
-          </section>
-        </div>
+            <p className="mt-3 text-xl font-black text-white">
+              Local only
+            </p>
+
+            <p className="mt-2 text-sm text-[#8E98A9]">
+              IndexedDB / Dexie
+            </p>
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="rounded-[24px] border border-white/10 bg-[#151A23] p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black text-white">
+                Quick reset
+              </h2>
+
+              <span className="rounded-lg bg-[#202632] px-3 py-1 text-xs font-semibold text-[#8E98A9]">
+                60 sec
+              </span>
+            </div>
+
+            <p className="mt-5 text-lg font-semibold leading-7 text-[#D9DDE4]">
+              Drop your shoulders. Unclench your jaw. Choose one task that
+              matters next.
+            </p>
+
+            <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-[#242B37]">
+              <div className="h-full w-2/3 rounded-full bg-[#35D07F]" />
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-white/10 bg-[#151A23] p-6">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#70798A]">
+                  Keep moving
+                </p>
+
+                <h2 className="mt-2 text-2xl font-black tracking-tight text-white">
+                  Your next reset is one click away.
+                </h2>
+
+                <p className="mt-2 max-w-xl text-sm leading-6 text-[#8E98A9]">
+                  Use the check-in when your energy or focus changes during the
+                  day.
+                </p>
+              </div>
+
+              <Link
+                href="/check-in"
+                className="shrink-0 rounded-xl bg-[#8A7CFF] px-5 py-3 font-bold text-white transition hover:bg-[#9A8CFF]"
+              >
+                Go to check-in
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
   );
