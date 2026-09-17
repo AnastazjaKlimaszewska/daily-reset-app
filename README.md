@@ -1,6 +1,6 @@
 # Daily Reset
 
-Daily Reset is a lightweight self-care web application that helps users choose one realistic next action based on their current state.
+Daily Reset is a lightweight self-care and decision-support web application that helps users choose one realistic next action based on their current state.
 
 The project was developed as a Spec Driven Development exercise for the course **Tworzenie aplikacji internetowych**.
 
@@ -12,14 +12,14 @@ https://daily-reset-app-ten.vercel.app/
 
 Daily Reset is designed for moments when a user feels overloaded, unfocused or unsure what to do next.
 
-Instead of asking the user to build a large routine or complete a long questionnaire, the application collects four short inputs:
+The application collects four short inputs:
 
 - energy level,
 - mood,
 - mental load,
 - available time.
 
-Based on those inputs, the application classifies the user's current state as:
+Based on those inputs, the application classifies the current state as:
 
 - recovery,
 - balanced,
@@ -31,37 +31,29 @@ The user can select one action, mark it as completed and review previous resets 
 
 ## Main user flow
 
-The core flow is:
-
 1. Open Daily Reset.
-2. Complete a short check-in.
+2. Complete the short check-in.
 3. Submit energy, mood, mental load and available time.
 4. Receive a classified state.
-5. Receive three recommendations.
+5. Receive exactly three recommendations.
 6. Select one recommendation.
 7. Mark the action as completed.
 8. Review the saved reset in History.
 9. Review descriptive statistics in Insights.
 
-## Application structure
-
-The MVP uses a multi-page structure.
-
-Available routes:
+## Application routes
 
 - `/` — Dashboard
 - `/check-in` — Daily Check-in
-- `/history` — Reset History
+- `/history` — History
 - `/insights` — Insights
 - `/settings` — Settings
-
-A shared responsive navigation component connects all views.
 
 ## Main features
 
 ### Dashboard
 
-Provides a quick overview of local application data:
+The Dashboard shows:
 
 - total check-ins,
 - completed actions,
@@ -71,7 +63,7 @@ Provides a quick overview of local application data:
 
 ### Daily Check-in
 
-Collects:
+The check-in collects:
 
 - energy,
 - mood,
@@ -86,7 +78,7 @@ Available time options are:
 
 ### State classification
 
-Each check-in is classified into one of three deterministic states:
+Each complete check-in is classified into one of three deterministic states:
 
 - recovery,
 - balanced,
@@ -105,11 +97,11 @@ A selected recommendation can be marked as completed and linked to the check-in 
 
 ### History
 
-The History page displays previously saved check-ins and related completed actions.
+History displays previous check-ins and related completed actions.
 
 ### Insights
 
-The Insights page summarizes locally stored data, including:
+Insights summarize locally stored data, including:
 
 - total check-ins,
 - completed actions,
@@ -120,11 +112,9 @@ The Insights page summarizes locally stored data, including:
 
 ### Settings
 
-The Settings page explains local data storage and allows the user to clear all application data stored in the browser.
+Settings explains local data storage and allows the user to clear all application data stored in the browser.
 
 ## Technology stack
-
-The project uses:
 
 - Next.js
 - React
@@ -139,11 +129,9 @@ The project uses:
 
 ## Local-first persistence
 
-Daily Reset stores application data locally in the browser using IndexedDB.
+Daily Reset stores application data locally in the browser using IndexedDB through Dexie.
 
-Dexie is used as the IndexedDB abstraction layer.
-
-The current database stores:
+The current database stores two main entities:
 
 ### CheckIn
 
@@ -176,26 +164,13 @@ The current MVP does not require:
 
 Recommendation generation is deterministic.
 
-The classification and recommendation logic is implemented in:
-
-`lib/recommendations.ts`
+The classification and recommendation logic is implemented in `lib/recommendations.ts`.
 
 The system does not use a generative AI model to create recommendations.
 
-This keeps the core logic:
-
-- predictable,
-- transparent,
-- testable,
-- inexpensive to run.
-
 ## Spec Driven Development
 
-The project follows a Spec Driven Development workflow.
-
-Implementation plans are stored in:
-
-`docs/plans/`
+Implementation plans are stored in `docs/plans/`.
 
 Each implementation plan defines:
 
@@ -216,21 +191,18 @@ The development workflow is:
 4. Implement one small functionality.
 5. Run automated tests.
 6. Update documentation.
-7. Commit the completed change.
+7. Update implementation registries.
+8. Commit the completed change.
 
 The repository is treated as the source of truth.
 
 ## Documentation structure
 
-Project documentation is stored in:
-
-`docs/`
+Project documentation is stored in `docs/`.
 
 ### Architecture
 
-`docs/architecture/`
-
-Contains:
+`docs/architecture/` contains:
 
 - system overview,
 - architecture decision records,
@@ -238,9 +210,7 @@ Contains:
 
 ### Business
 
-`docs/business/`
-
-Contains:
+`docs/business/` contains:
 
 - business requirements,
 - product scope,
@@ -253,9 +223,7 @@ Contains:
 
 ### Technical documentation
 
-`docs/tech/`
-
-Contains:
+`docs/tech/` contains:
 
 - technology stack,
 - technology stack audit,
@@ -263,15 +231,11 @@ Contains:
 
 ### Implementation plans
 
-`docs/plans/`
-
-Contains feature-level implementation plans used during development.
+`docs/plans/` contains feature-level implementation plans.
 
 ### Project roles
 
-`docs/roles/`
-
-Contains documentation for:
+`docs/roles/` contains documentation for:
 
 - Product Owner,
 - UX/UI,
@@ -281,16 +245,12 @@ Contains documentation for:
 
 ## AI-assisted development workflow
 
-Reusable AI development workflows are stored in:
-
-`.kilocode/workflows/`
+Reusable AI development workflows are stored in `.kilocode/workflows/`.
 
 The project includes workflows for:
 
 - planning,
 - implementation.
-
-Their purpose is to make an AI coding agent follow the documented SDD process instead of implementing features without a specification.
 
 ## Testing
 
@@ -311,7 +271,58 @@ The test suite covers:
 - Insights,
 - Settings.
 
-Run tests with:
+Run the full test suite with:
 
-```bash
-npx vitest run
+`npx.cmd vitest run`
+
+## Development
+
+Install dependencies:
+
+`npm.cmd install`
+
+Start the development server:
+
+`npm.cmd run dev`
+
+Open:
+
+`http://localhost:3000`
+
+## Production build
+
+Run:
+
+`npm.cmd run build`
+
+The application currently passes the production build.
+
+## Deployment
+
+The application is deployed using Vercel.
+
+Production URL:
+
+https://daily-reset-app-ten.vercel.app/
+
+## Implementation status
+
+Implementation registries are stored in:
+
+- `implemented_features.md`
+- `implemented_plans.md`
+
+## Current MVP boundaries
+
+The current MVP intentionally does not include:
+
+- login,
+- registration,
+- payments,
+- cloud synchronization,
+- generative AI recommendations,
+- external backend services.
+
+These boundaries keep the product narrow, testable and consistent with the defined MVP scope.
+
+<!-- FINAL_DOC_OK -->

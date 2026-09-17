@@ -1,14 +1,14 @@
 # Development Guidelines
 
-## 1. Development approach
+## Development approach
 
-Daily Reset is developed using a Spec Driven Development process.
+Daily Reset is developed using Spec Driven Development.
 
 Implementation should follow documented requirements and plans instead of introducing undocumented functionality.
 
 The repository is the source of truth.
 
-## 2. General principles
+## General principles
 
 Development should prioritize:
 
@@ -19,9 +19,7 @@ Development should prioritize:
 - simple architecture,
 - consistency with documented plans.
 
-Avoid unnecessary abstraction unless it clearly improves maintainability.
-
-## 3. Technology stack
+## Technology stack
 
 The current implementation uses:
 
@@ -35,9 +33,9 @@ The current implementation uses:
 - Testing Library,
 - jsdom.
 
-## 4. Application structure
+## Application structure
 
-Main application routes:
+Main routes:
 
 - `app/page.tsx` — Dashboard
 - `app/check-in/page.tsx` — Daily Check-in
@@ -55,66 +53,34 @@ Domain and persistence logic:
 - `lib/db.ts`
 - `lib/storage.ts`
 
-Automated tests are stored in:
+Automated tests are stored in `tests/`.
 
-- `tests/`
+## Separation of concerns
 
-## 5. Separation of concerns
+Pages and components are responsible for rendering UI, collecting input, displaying state and invoking domain or storage functions.
 
-### Presentation
+`lib/recommendations.ts` is responsible for deterministic classification and recommendation generation.
 
-Pages and components are responsible for:
+`lib/db.ts` defines the database, entity types and IndexedDB schema.
 
-- rendering UI,
-- collecting user input,
-- displaying application state,
-- invoking domain or storage functions.
+`lib/storage.ts` defines save, read and clear operations.
 
-### Domain logic
+## Persistence rules
 
-`lib/recommendations.ts` is responsible for:
-
-- deterministic state classification,
-- recommendation generation.
-
-UI components should not duplicate this logic.
-
-### Persistence
-
-`lib/db.ts` defines:
-
-- database,
-- entity types,
-- IndexedDB schema.
-
-`lib/storage.ts` defines:
-
-- save operations,
-- read operations,
-- clear operations.
-
-Pages should use storage functions instead of directly manipulating IndexedDB.
-
-## 6. Persistence rules
-
-The current MVP uses IndexedDB through Dexie.
+The MVP uses IndexedDB through Dexie.
 
 Do not introduce `localStorage` as a second persistence mechanism for application records.
 
-The persisted domain entities are:
+Persisted entities:
 
-- CheckIn,
-- CompletedAction.
+- CheckIn
+- CompletedAction
 
-A completed action must reference its source check-in through:
+A completed action references its source check-in through `checkInId`.
 
-`checkInId`
+## Recommendation rules
 
-## 7. Recommendation rules
-
-State classification must remain deterministic.
-
-The system must classify a complete check-in as one of:
+The system must classify a complete check-in as:
 
 - recovery,
 - balanced,
@@ -126,11 +92,9 @@ Recommendation generation must:
 - use available time,
 - return exactly three recommendations.
 
-Core recommendation behavior should remain testable without external APIs.
+Core behavior must remain testable without external APIs.
 
-## 8. UI development
-
-New UI should remain consistent with the existing application shell.
+## UI development
 
 The current visual direction uses:
 
@@ -143,24 +107,51 @@ The current visual direction uses:
 
 Shared navigation should remain consistent across all routes.
 
-## 9. Testing expectations
+## Testing expectations
 
 Changes to core behavior should include or update tests.
 
-Tests should verify:
-
-- business logic,
-- user-visible behavior,
-- important storage calls,
-- edge states where appropriate.
-
-The current suite uses:
-
-- Vitest,
-- Testing Library,
-- jsdom.
-
 Run tests with:
 
-```bash
-npx vitest run
+`npx.cmd vitest run`
+
+## Build verification
+
+Before considering a major implementation complete, run:
+
+`npm.cmd run build`
+
+The build should complete without errors.
+
+## SDD workflow
+
+For each new feature:
+
+1. Confirm the requirement.
+2. Create or update an implementation plan.
+3. Define acceptance criteria.
+4. Implement the smallest useful change.
+5. Run tests.
+6. Update documentation.
+7. Update implementation registries.
+8. Commit the completed change.
+
+## Scope control
+
+Do not add the following without an explicit new plan:
+
+- authentication,
+- registration,
+- payments,
+- remote backend,
+- cloud synchronization,
+- generative AI recommendations,
+- external recommendation services.
+
+## Documentation
+
+When implementation changes system behavior, update the relevant documentation.
+
+Implementation and documentation should describe the same system.
+
+<!-- FINAL_DOC_OK -->

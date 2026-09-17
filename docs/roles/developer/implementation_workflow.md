@@ -1,87 +1,167 @@
 # Implementation Workflow
 
-## Cel
+## Purpose
 
-Ten plik opisuje sposób implementowania funkcjonalności w projekcie Daily Reset zgodnie z podejściem Spec Driven Development.
+This file defines the Daily Reset implementation process using Spec Driven Development.
 
-Repozytorium jest źródłem prawdy dla:
+The repository is the source of truth for requirements, plans, implementation, tests and documentation.
 
-- wymagań,
-- planów,
-- implementacji,
-- testów,
-- dokumentacji.
+## Process
 
-## Proces implementacji
+Each substantial feature should follow these stages:
 
-Każda większa funkcjonalność powinna przejść przez następujące etapy:
+1. Requirement definition.
+2. Implementation plan.
+3. Scope review.
+4. Implementation.
+5. Automated tests.
+6. Production build verification where appropriate.
+7. Documentation update.
+8. Implementation registry update.
+9. Git commit.
 
-1. zdefiniowanie wymagania,
-2. przygotowanie planu implementacji,
-3. przegląd zakresu,
-4. implementacja,
-5. testy,
-6. aktualizacja dokumentacji,
-7. aktualizacja rejestrów implementacji,
-8. commit zmian.
+## Requirement definition
 
-## 1. Definicja wymagania
+Before implementation, define:
 
-Przed rozpoczęciem implementacji należy określić:
+- user need,
+- expected behavior,
+- scope,
+- exclusions.
 
-- problem użytkownika,
-- oczekiwane zachowanie,
-- zakres funkcjonalności,
-- elementy poza zakresem.
+## Implementation plan
 
-Wymagania powinny być zapisane w dokumentacji projektu.
+Create a plan in `docs/plans/`.
 
-## 2. Plan implementacji
+The plan should include:
 
-Każda większa funkcjonalność powinna posiadać plan w:
+- Goal
+- Scope
+- Functional requirements
+- Non-functional requirements
+- Technical context
+- Implementation steps
+- Acceptance criteria
+- Tests
 
-`docs/plans/`
+The plan acts as the implementation contract.
 
-Plan powinien zawierać:
+## Review
 
-- Goal,
-- Scope,
-- Functional requirements,
-- Non-functional requirements,
-- Technical context,
-- Implementation steps,
-- Acceptance criteria,
-- Tests.
+Before coding, verify that:
 
-Plan pełni funkcję kontraktu implementacyjnego.
+- the requirement is understandable,
+- the feature is small enough,
+- dependencies are known,
+- acceptance criteria are testable,
+- the feature fits the MVP scope.
 
-## 3. Przegląd planu
+## Implementation
 
-Przed rozpoczęciem kodowania należy sprawdzić:
+Implement the feature in the smallest reasonable step.
 
-- czy wymaganie jest jednoznaczne,
-- czy zakres jest odpowiednio mały,
-- czy zależności są znane,
-- czy kryteria akceptacji są testowalne,
-- czy funkcjonalność mieści się w zakresie MVP.
+Use the existing architecture and conventions.
 
-## 4. Implementacja
+Do not introduce unrelated functionality.
 
-Funkcjonalność powinna być implementowana możliwie małymi krokami.
+## Automated testing
 
-Należy:
+Run the full suite with:
 
-- korzystać z istniejącej architektury,
-- zachować spójność z aktualnym kodem,
-- nie dodawać funkcji niezwiązanych z planem,
-- nie duplikować logiki domenowej,
-- nie wprowadzać nowych technologii bez uzasadnienia.
+`npx.cmd vitest run`
 
-## 5. Testy automatyczne
+If tests fail, the feature should not be considered complete.
 
-Po implementacji należy uruchomić odpowiednie testy.
+## Production build
 
-Pełny zestaw testów uruchamiany jest poleceniem:
+For significant changes, run:
 
-```bash
-npx.cmd vitest run
+`npm.cmd run build`
+
+The build should complete without errors.
+
+## Documentation update
+
+Update documentation when behavior, architecture or scope changes.
+
+Relevant locations may include:
+
+- `docs/architecture/`
+- `docs/business/`
+- `docs/tech/`
+- `docs/roles/`
+- `README.md`
+
+## Implementation registry
+
+When a feature or plan is completed, update:
+
+- `implemented_features.md`
+- `implemented_plans.md`
+
+## Version control
+
+Commit the completed change to Git.
+
+The commit message should clearly describe the change.
+
+## Implementation rule
+
+No substantial feature should be implemented without a corresponding documented plan.
+
+## Current Daily Reset flow
+
+Requirement
+
+↓
+
+Plan
+
+↓
+
+Implementation
+
+↓
+
+Automated tests
+
+↓
+
+Production build
+
+↓
+
+Documentation update
+
+↓
+
+Implementation registry update
+
+↓
+
+Git commit
+
+## Current MVP scope
+
+The current MVP includes:
+
+- Dashboard,
+- Daily Check-in,
+- state classification,
+- recommendations,
+- completed action tracking,
+- IndexedDB,
+- History,
+- Insights,
+- Settings.
+
+Outside current scope:
+
+- login,
+- registration,
+- payments,
+- remote backend,
+- cloud synchronization,
+- generative AI.
+
+<!-- FINAL_DOC_OK -->

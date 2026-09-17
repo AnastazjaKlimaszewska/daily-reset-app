@@ -1,116 +1,138 @@
 # Test Strategy
 
-## Cel
+## Purpose
 
-Celem testów w projekcie Daily Reset jest sprawdzenie, czy MVP działa zgodnie z wymaganiami, planami implementacji i aktualną architekturą systemu.
+Testing verifies that Daily Reset behaves consistently with documented requirements and implementation plans.
 
-Testy koncentrują się na:
+Testing focuses on:
 
-- logice klasyfikacji,
-- logice rekomendacji,
-- głównych przepływach użytkownika,
-- poprawnym renderowaniu stron,
-- obsłudze danych lokalnych,
-- zapobieganiu regresjom.
+- deterministic business logic,
+- important user flows,
+- page rendering,
+- storage interactions,
+- regression prevention.
 
-## Narzędzia testowe
+## Tools
 
-Projekt wykorzystuje:
+The automated test environment uses:
 
 - Vitest,
 - Testing Library,
 - jsdom.
 
-## Zakres testów automatycznych
+## Domain logic testing
 
-### Logika rekomendacji
+Tests verify:
 
-Testy sprawdzają:
+- state classification,
+- recommendation generation,
+- deterministic behavior,
+- exactly three recommendations,
+- adaptation to available time and classified state.
 
-- klasyfikację stanu,
-- deterministyczne działanie logiki,
-- poprawną liczbę rekomendacji,
-- dopasowanie rekomendacji do stanu i dostępnego czasu.
+Primary file: `tests/recommendations.test.ts`.
 
-Plik:
+## Dashboard testing
 
-`tests/recommendations.test.ts`
+Tests verify:
 
-### Dashboard
+- loading saved data,
+- rendering summary statistics,
+- latest state,
+- latest completed action,
+- primary navigation actions.
 
-Testy sprawdzają:
+Primary file: `tests/page.test.tsx`.
 
-- ładowanie zapisanych danych,
-- wyświetlanie podsumowania,
-- najnowszy stan,
-- ostatnią wykonaną akcję,
-- podstawowe elementy nawigacyjne.
+## Daily Check-in testing
 
-Plik:
+Tests verify:
 
-`tests/page.test.tsx`
+- input selection,
+- required field behavior,
+- state classification result,
+- generation of three recommendations,
+- recommendation selection,
+- action completion,
+- storage calls.
 
-### Daily Check-in
+Primary file: `tests/checkin.test.tsx`.
 
-Testy sprawdzają:
+## History testing
 
-- wybór energii,
-- wybór nastroju,
-- wybór obciążenia mentalnego,
-- wybór dostępnego czasu,
-- klasyfikację,
-- wygenerowanie dokładnie trzech rekomendacji,
-- wybór rekomendacji,
-- zapis wykonanej akcji.
+Tests verify:
 
-Plik:
+- loading saved check-ins,
+- loading completed actions,
+- matching actions to check-ins,
+- rendering historical information.
 
-`tests/checkin.test.tsx`
+Primary file: `tests/history.test.tsx`.
 
-### History
+## Insights testing
 
-Testy sprawdzają:
+Tests verify:
 
-- ładowanie zapisanych check-inów,
-- ładowanie wykonanych akcji,
-- powiązanie akcji z odpowiednim check-inem,
-- wyświetlanie historii użytkownika.
-
-Plik:
-
-`tests/history.test.tsx`
-
-### Insights
-
-Testy sprawdzają:
-
-- liczbę check-inów,
-- liczbę wykonanych akcji,
+- total check-ins,
+- total completed actions,
 - completion rate,
-- rozkład stanów,
-- najczęstszy stan,
-- kategorie wykonanych akcji.
+- state distribution,
+- most common state,
+- completed action categories.
 
-Plik:
+Primary file: `tests/insights.test.tsx`.
 
-`tests/insights.test.tsx`
+## Settings testing
 
-### Settings
+Tests verify:
 
-Testy sprawdzają:
+- local data information,
+- confirmation before destructive deletion,
+- data clearing,
+- success feedback.
 
-- wyświetlanie informacji o danych lokalnych,
-- potwierdzenie przed usunięciem danych,
-- wywołanie operacji czyszczenia danych,
-- komunikat po zakończeniu operacji.
+Primary file: `tests/settings.test.tsx`.
 
-Plik:
+## Regression testing
 
-`tests/settings.test.tsx`
+Run the full automated suite after significant changes:
 
-## Uruchamianie testów
+`npx.cmd vitest run`
 
-Pełny zestaw testów uruchamiany jest poleceniem:
+## Build verification
 
-```bash
-npx.cmd vitest run
+Run:
+
+`npm.cmd run build`
+
+The build should complete without errors.
+
+## Manual deployment verification
+
+After deployment, verify:
+
+1. Dashboard opens.
+2. Check-in can be completed.
+3. Exactly three recommendations appear.
+4. An action can be completed.
+5. History displays the saved reset.
+6. Insights reflects saved data.
+7. Settings opens correctly.
+8. Navigation works between all routes.
+
+## Test boundaries
+
+The current MVP does not require tests for:
+
+- authentication,
+- registration,
+- payments,
+- cloud synchronization,
+- remote backend,
+- generative AI services.
+
+## Quality goal
+
+The testing strategy should provide confidence that the documented MVP user flow works consistently and that changes do not silently break core functionality.
+
+<!-- FINAL_DOC_OK -->

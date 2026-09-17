@@ -1,292 +1,210 @@
 # Test Cases
 
-## TC-01 — Dashboard ładuje się poprawnie
+## TC-01 — Dashboard loads
 
-### Warunki wstępne
+Steps:
 
-Aplikacja uruchamia się bez krytycznego błędu.
+1. Open `/`.
+2. Wait for locally stored data to load.
 
-### Kroki
+Expected result:
 
-1. Otwórz `/`.
-2. Poczekaj na załadowanie lokalnych danych.
+Dashboard renders successfully and displays summary sections.
 
-### Oczekiwany rezultat
+## TC-02 — Complete Daily Check-in
 
-Dashboard wyświetla się poprawnie i pokazuje sekcje podsumowania.
+Steps:
 
----
+1. Open `/check-in`.
+2. Select energy.
+3. Select mood.
+4. Select mental load.
+5. Select available time.
+6. Submit the check-in.
 
-## TC-02 — Ukończenie Daily Check-in
+Expected result:
 
-### Kroki
+- the check-in is accepted,
+- the state is classified,
+- exactly three recommendations are displayed.
 
-1. Otwórz `/check-in`.
-2. Wybierz poziom energii.
-3. Wybierz nastrój.
-4. Wybierz obciążenie mentalne.
-5. Wybierz dostępny czas.
-6. Zatwierdź check-in.
+## TC-03 — Incomplete check-in
 
-### Oczekiwany rezultat
+Steps:
 
-Aplikacja:
+1. Open `/check-in`.
+2. Leave at least one required input unselected.
+3. Attempt to continue.
 
-- przyjmuje kompletny check-in,
-- klasyfikuje stan użytkownika,
-- wyświetla dokładnie trzy rekomendacje.
+Expected result:
 
----
+The incomplete check-in is not processed as a complete reset.
 
-## TC-03 — Niekompletny check-in
+## TC-04 — Recovery classification
 
-### Kroki
-
-1. Otwórz `/check-in`.
-2. Pozostaw co najmniej jedno wymagane pole bez wyboru.
-3. Spróbuj przejść dalej.
-
-### Oczekiwany rezultat
-
-Niekompletny check-in nie jest przetwarzany jako pełny reset.
-
----
-
-## TC-04 — Klasyfikacja Recovery
-
-### Przykładowe dane
+Example input:
 
 - energy: low
 
-### Oczekiwany rezultat
+Expected result:
 
-Stan zostaje sklasyfikowany jako:
+State is `recovery` according to deterministic classification rules.
 
-`recovery`
+## TC-05 — Active classification
 
-zgodnie z deterministycznymi regułami klasyfikacji.
-
----
-
-## TC-05 — Klasyfikacja Active
-
-### Przykładowe dane
+Example input:
 
 - energy: high
 - mood: good
-- mental load: wartość, która nie wymusza recovery
+- mental load not forcing recovery
 
-### Oczekiwany rezultat
+Expected result:
 
-Stan zostaje sklasyfikowany jako:
+State is `active` according to implemented rules.
 
-`active`
+## TC-06 — Balanced classification
 
-zgodnie z zaimplementowanymi regułami klasyfikacji.
+Use values that do not satisfy recovery or active rules.
 
----
+Expected result:
 
-## TC-06 — Klasyfikacja Balanced
+State is `balanced`.
 
-### Dane
+## TC-07 — Recommendation count
 
-Użyj wartości, które nie spełniają warunków dla recovery ani active.
+Steps:
 
-### Oczekiwany rezultat
+1. Complete a valid check-in.
+2. View recommendations.
 
-Stan zostaje sklasyfikowany jako:
+Expected result:
 
-`balanced`
+Exactly three recommendations are displayed.
 
----
+## TC-08 — Recommendation selection
 
-## TC-07 — Liczba rekomendacji
+Steps:
 
-### Kroki
+1. Generate recommendations.
+2. Select one recommendation.
 
-1. Ukończ poprawny check-in.
-2. Wyświetl wyniki rekomendacji.
+Expected result:
 
-### Oczekiwany rezultat
+The selected recommendation becomes visually identifiable.
 
-Wyświetlają się dokładnie trzy rekomendacje.
+## TC-09 — Complete selected action
 
----
+Steps:
 
-## TC-08 — Wybór rekomendacji
+1. Generate recommendations.
+2. Select one recommendation.
+3. Mark it as completed.
 
-### Kroki
+Expected result:
 
-1. Wygeneruj rekomendacje.
-2. Wybierz jedną z nich.
+The completed action is saved and linked to its source check-in.
 
-### Oczekiwany rezultat
+## TC-10 — History displays saved reset
 
-Wybrana rekomendacja jest wizualnie oznaczona jako aktywna.
+Precondition:
 
----
+At least one check-in exists.
 
-## TC-09 — Ukończenie wybranej akcji
+Steps:
 
-### Kroki
+1. Open `/history`.
 
-1. Wygeneruj rekomendacje.
-2. Wybierz jedną rekomendację.
-3. Oznacz ją jako wykonaną.
+Expected result:
 
-### Oczekiwany rezultat
+Saved check-in information is displayed together with its completed action when available.
 
-Wykonana akcja zostaje zapisana i powiązana z check-inem, który ją wygenerował.
+## TC-11 — History ordering
 
-Użytkownik otrzymuje widoczne potwierdzenie ukończenia.
+Precondition:
 
----
+Multiple check-ins exist.
 
-## TC-10 — History pokazuje zapisany reset
+Expected result:
 
-### Warunki wstępne
+Newer records are presented before older records.
 
-Istnieje co najmniej jeden zapisany check-in.
+## TC-12 — Dashboard statistics
 
-### Kroki
+Precondition:
 
-1. Otwórz `/history`.
+Local data exists.
 
-### Oczekiwany rezultat
+Expected result:
 
-Wyświetlają się informacje o zapisanym check-inie.
+Dashboard correctly displays:
 
-Jeśli istnieje wykonana akcja dla tego check-inu, również zostaje wyświetlona.
-
----
-
-## TC-11 — Kolejność historii
-
-### Warunki wstępne
-
-Istnieje kilka zapisanych check-inów.
-
-### Kroki
-
-1. Otwórz `/history`.
-
-### Oczekiwany rezultat
-
-Nowsze wpisy są wyświetlane przed starszymi.
-
----
-
-## TC-12 — Statystyki Dashboardu
-
-### Warunki wstępne
-
-W lokalnej bazie istnieją dane.
-
-### Kroki
-
-1. Otwórz `/`.
-
-### Oczekiwany rezultat
-
-Dashboard poprawnie wyświetla:
-
-- liczbę check-inów,
-- liczbę wykonanych akcji,
+- check-in count,
+- completed action count,
 - completion rate,
-- najnowszy stan,
-- ostatnią wykonaną akcję.
+- latest state,
+- latest completed action.
 
----
+## TC-13 — Insights state distribution
 
-## TC-13 — Rozkład stanów w Insights
+Precondition:
 
-### Warunki wstępne
+Several check-ins exist with different classified states.
 
-Istnieje kilka check-inów z różnymi stanami.
+Expected result:
 
-### Kroki
+State distribution reflects saved check-in data.
 
-1. Otwórz `/insights`.
+## TC-14 — Insights most common state
 
-### Oczekiwany rezultat
+Precondition:
 
-Rozkład stanów odpowiada zapisanym danym.
+One classified state occurs more often than the others.
 
----
+Expected result:
 
-## TC-14 — Najczęstszy stan w Insights
+The displayed most common state matches stored data.
 
-### Warunki wstępne
+## TC-15 — Insights action categories
 
-Jeden ze stanów występuje częściej niż pozostałe.
+Precondition:
 
-### Kroki
+Completed actions exist.
 
-1. Otwórz `/insights`.
+Expected result:
 
-### Oczekiwany rezultat
+Completed action categories are summarized correctly.
 
-Najczęstszy stan wyświetlany przez aplikację odpowiada zapisanym danym.
+## TC-16 — Clear local data
 
----
+Precondition:
 
-## TC-15 — Kategorie wykonanych akcji
+Stored data exists.
 
-### Warunki wstępne
+Steps:
 
-Istnieją wykonane akcje.
+1. Open `/settings`.
+2. Choose the clear-data action.
+3. Confirm the operation.
 
-### Kroki
+Expected result:
 
-1. Otwórz `/insights`.
+Daily Reset local data is removed and success feedback is displayed.
 
-### Oczekiwany rezultat
+## TC-17 — Cancel clear-data operation
 
-Kategorie wykonanych akcji są poprawnie podsumowane.
+Steps:
 
----
+1. Open `/settings`.
+2. Choose the clear-data action.
+3. Cancel the confirmation dialog.
 
-## TC-16 — Usuwanie danych lokalnych
+Expected result:
 
-### Warunki wstępne
+Stored data is not deleted.
 
-Istnieją zapisane check-iny lub wykonane akcje.
+## TC-18 — Navigation
 
-### Kroki
-
-1. Otwórz `/settings`.
-2. Wybierz opcję usunięcia danych.
-3. Potwierdź operację.
-
-### Oczekiwany rezultat
-
-Dane Daily Reset zostają usunięte, a użytkownik otrzymuje potwierdzenie.
-
----
-
-## TC-17 — Anulowanie usunięcia danych
-
-### Warunki wstępne
-
-Istnieją zapisane dane.
-
-### Kroki
-
-1. Otwórz `/settings`.
-2. Wybierz opcję usunięcia danych.
-3. Anuluj okno potwierdzenia.
-
-### Oczekiwany rezultat
-
-Dane nie zostają usunięte.
-
----
-
-## TC-18 — Nawigacja
-
-### Kroki
-
-Przejdź kolejno między:
+Navigate between:
 
 - Dashboard,
 - Check-in,
@@ -294,17 +212,28 @@ Przejdź kolejno między:
 - Insights,
 - Settings.
 
-### Oczekiwany rezultat
+Expected result:
 
-Każda trasa otwiera się poprawnie, a wspólna nawigacja pozostaje dostępna.
+Each route loads successfully and shared navigation remains available.
 
----
+## TC-19 — Automated regression suite
 
-## TC-19 — Pełny zestaw testów automatycznych
+Run:
 
-### Kroki
+`npx.cmd vitest run`
 
-Uruchom:
+Expected result:
 
-```bash
-npx.cmd vitest run
+All automated tests pass.
+
+## TC-20 — Production build
+
+Run:
+
+`npm.cmd run build`
+
+Expected result:
+
+The production build completes without errors.
+
+<!-- FINAL_DOC_OK -->
