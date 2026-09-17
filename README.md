@@ -1,8 +1,8 @@
 # Daily Reset
 
-Daily Reset is a small self-care web application that helps users choose one realistic next action based on their current state.
+Daily Reset is a lightweight self-care web application that helps users choose one realistic next action based on their current state.
 
-The project was developed as a Spec Driven Development exercise for the course "Tworzenie aplikacji internetowych".
+The project was developed as a Spec Driven Development exercise for the course **Tworzenie aplikacji internetowych**.
 
 ## Live application
 
@@ -10,26 +10,44 @@ https://daily-reset-app-ten.vercel.app/
 
 ## Product idea
 
-Daily Reset asks the user for four short inputs:
+Daily Reset is designed for moments when a user feels overloaded, unfocused or unsure what to do next.
+
+Instead of asking the user to build a large routine or complete a long questionnaire, the application collects four short inputs:
 
 - energy level,
 - mood,
 - mental load,
 - available time.
 
-Based on those inputs, the application classifies the current state as:
+Based on those inputs, the application classifies the user's current state as:
 
 - recovery,
 - balanced,
 - active.
 
-It then returns exactly three deterministic recommendations adjusted to the user's state and available time.
+It then returns exactly three deterministic micro-actions adjusted to the user's current state and available time.
 
-The user can choose one action, mark it as completed, and review previous resets later.
+The user can select one action, mark it as completed and review previous resets later.
+
+## Main user flow
+
+The core flow is:
+
+1. Open Daily Reset.
+2. Complete a short check-in.
+3. Submit energy, mood, mental load and available time.
+4. Receive a classified state.
+5. Receive three recommendations.
+6. Select one recommendation.
+7. Mark the action as completed.
+8. Review the saved reset in History.
+9. Review descriptive statistics in Insights.
 
 ## Application structure
 
-The current MVP uses a multi-page structure:
+The MVP uses a multi-page structure.
+
+Available routes:
 
 - `/` — Dashboard
 - `/check-in` — Daily Check-in
@@ -37,22 +55,76 @@ The current MVP uses a multi-page structure:
 - `/insights` — Insights
 - `/settings` — Settings
 
-A shared responsive navigation component connects all application views.
+A shared responsive navigation component connects all views.
 
 ## Main features
 
-- Daily check-in
-- Deterministic state classification
-- Adaptive recommendations
-- Completed action tracking
-- IndexedDB persistence
-- Reset history
-- Statistics and insights
-- Local data management
-- Responsive multi-page interface
-- Automated tests
+### Dashboard
+
+Provides a quick overview of local application data:
+
+- total check-ins,
+- completed actions,
+- completion rate,
+- latest classified state,
+- latest completed action.
+
+### Daily Check-in
+
+Collects:
+
+- energy,
+- mood,
+- mental load,
+- available time.
+
+Available time options are:
+
+- 5 minutes,
+- 10 minutes,
+- 20 minutes.
+
+### State classification
+
+Each check-in is classified into one of three deterministic states:
+
+- recovery,
+- balanced,
+- active.
+
+### Adaptive recommendations
+
+The system returns exactly three recommendations based on:
+
+- classified state,
+- available time.
+
+### Completed action tracking
+
+A selected recommendation can be marked as completed and linked to the check-in that generated it.
+
+### History
+
+The History page displays previously saved check-ins and related completed actions.
+
+### Insights
+
+The Insights page summarizes locally stored data, including:
+
+- total check-ins,
+- completed actions,
+- completion rate,
+- state distribution,
+- most common state,
+- completed action categories.
+
+### Settings
+
+The Settings page explains local data storage and allows the user to clear all application data stored in the browser.
 
 ## Technology stack
+
+The project uses:
 
 - Next.js
 - React
@@ -62,45 +134,59 @@ A shared responsive navigation component connects all application views.
 - Dexie
 - Vitest
 - Testing Library
+- jsdom
 - Vercel
 
-## Local data
+## Local-first persistence
 
-The current MVP stores data locally in the browser using IndexedDB and Dexie.
+Daily Reset stores application data locally in the browser using IndexedDB.
 
-Stored data includes:
+Dexie is used as the IndexedDB abstraction layer.
 
-- check-ins,
-- classified states,
-- completed actions,
-- timestamps.
+The current database stores:
 
-The application does not currently require:
+### CheckIn
+
+- id
+- createdAt
+- energy
+- mood
+- mentalLoad
+- availableTime
+- classifiedState
+
+### CompletedAction
+
+- id
+- checkInId
+- activity
+- category
+- completedAt
+
+The current MVP does not require:
 
 - authentication,
 - registration,
 - payments,
-- remote backend,
-- cloud synchronization.
+- cloud synchronization,
+- remote database,
+- external backend.
 
 ## Recommendation logic
 
 Recommendation generation is deterministic.
 
-The logic uses:
+The classification and recommendation logic is implemented in:
 
-- energy,
-- mood,
-- mental load,
-- available time.
+`lib/recommendations.ts`
 
-The system does not use generative AI to create recommendations.
+The system does not use a generative AI model to create recommendations.
 
-This keeps the MVP:
+This keeps the core logic:
 
 - predictable,
-- testable,
 - transparent,
+- testable,
 - inexpensive to run.
 
 ## Spec Driven Development
@@ -111,28 +197,30 @@ Implementation plans are stored in:
 
 `docs/plans/`
 
-Each plan defines:
+Each implementation plan defines:
 
-- goal,
-- scope,
-- functional requirements,
-- non-functional requirements,
-- technical context,
-- implementation steps,
-- acceptance criteria,
-- tests.
+- Goal
+- Scope
+- Functional requirements
+- Non-functional requirements
+- Technical context
+- Implementation steps
+- Acceptance criteria
+- Tests
 
-The implementation workflow is:
+The development workflow is:
 
 1. Define the requirement.
-2. Create a plan.
-3. Review the plan.
-4. Implement one small feature.
-5. Run tests.
+2. Create an implementation plan.
+3. Review scope and acceptance criteria.
+4. Implement one small functionality.
+5. Run automated tests.
 6. Update documentation.
 7. Commit the completed change.
 
-## Documentation
+The repository is treated as the source of truth.
+
+## Documentation structure
 
 Project documentation is stored in:
 
@@ -170,17 +258,16 @@ Contains:
 Contains:
 
 - technology stack,
-- technical constraints,
-- resource analysis,
-- technology stack audit.
+- technology stack audit,
+- resource analysis.
 
-### Plans
+### Implementation plans
 
 `docs/plans/`
 
-Contains implementation plans for individual features.
+Contains feature-level implementation plans used during development.
 
-### Roles
+### Project roles
 
 `docs/roles/`
 
@@ -194,20 +281,37 @@ Contains documentation for:
 
 ## AI-assisted development workflow
 
-The repository also contains reusable AI workflows in:
+Reusable AI development workflows are stored in:
 
 `.kilocode/workflows/`
 
-Available workflows include:
+The project includes workflows for:
 
 - planning,
 - implementation.
 
-The purpose of these workflows is to help an AI coding agent follow the project's SDD process instead of implementing features without a documented plan.
+Their purpose is to make an AI coding agent follow the documented SDD process instead of implementing features without a specification.
 
 ## Testing
 
-Run all automated tests with:
+Automated tests use:
+
+- Vitest,
+- Testing Library,
+- jsdom.
+
+The test suite covers:
+
+- state classification,
+- recommendation logic,
+- Dashboard,
+- Daily Check-in,
+- completed action flow,
+- History,
+- Insights,
+- Settings.
+
+Run tests with:
 
 ```bash
 npx vitest run

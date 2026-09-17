@@ -2,65 +2,200 @@
 
 ## 1. Architecture goal
 
-The architecture should remain simple and appropriate for a small MVP.
+The architecture should remain simple, testable and appropriate for a small MVP.
 
-The application does not require a backend, authentication system or external database.
+The application does not require:
+
+- a remote backend,
+- authentication,
+- payments,
+- external database infrastructure.
+
+The system follows a local-first approach.
 
 ## 2. Main architecture
 
-Daily Reset uses a client-side architecture.
+Daily Reset is built with Next.js, React and TypeScript.
 
-The main application is built with Next.js and React.
+The application is primarily client-side for interactive functionality and browser persistence.
 
-User interactions are handled directly in the frontend.
+The architecture contains four main areas:
 
-Data persistence is handled by browser localStorage.
+- presentation layer,
+- domain logic,
+- persistence layer,
+- automated testing.
 
-## 3. Main components
+## 3. Presentation layer
 
-The system contains the following logical components:
+The application uses multiple routes:
 
-- energy selection,
-- activity recommendation logic,
-- activity completion,
-- history storage,
-- user interface.
+- `/` — Dashboard
+- `/check-in` — Daily Check-in
+- `/history` — History
+- `/insights` — Insights
+- `/settings` — Settings
 
-## 4. Data model
+Shared navigation is implemented in:
 
-Each history entry contains:
+`components/AppNavigation.tsx`
 
-- date,
-- energy level,
-- completed activity.
+The root layout is implemented in:
 
-The data is stored as JSON in localStorage.
+`app/layout.tsx`
 
-## 5. Integration decisions
+## 4. Domain logic
 
-The current MVP does not use external integrations.
+State classification and recommendation generation are implemented in:
 
-There are no:
+`lib/recommendations.ts`
+
+The logic is deterministic.
+
+The system classifies the user into:
+
+- recovery,
+- balanced,
+- active.
+
+Recommendation generation depends on:
+
+- classified state,
+- available time.
+
+The engine returns exactly three recommendations.
+
+## 5. Persistence
+
+Data persistence uses browser IndexedDB through Dexie.
+
+Database configuration and entity types are defined in:
+
+`lib/db.ts`
+
+Storage operations are defined in:
+
+`lib/storage.ts`
+
+The persistence layer supports:
+
+- saving check-ins,
+- saving completed actions,
+- retrieving check-ins,
+- retrieving completed actions,
+- retrieving actions for a specific check-in,
+- clearing all local application data.
+
+## 6. Data model
+
+The system uses two main entities.
+
+### CheckIn
+
+Contains:
+
+- id,
+- createdAt,
+- energy,
+- mood,
+- mentalLoad,
+- availableTime,
+- classifiedState.
+
+### CompletedAction
+
+Contains:
+
+- id,
+- checkInId,
+- activity,
+- category,
+- completedAt.
+
+The relationship between the two entities is based on:
+
+`CompletedAction.checkInId`
+
+## 7. Insights
+
+Insights are calculated from locally stored data.
+
+No separate analytics backend is required.
+
+Current calculations include:
+
+- total check-ins,
+- completed actions,
+- completion rate,
+- state distribution,
+- most common state,
+- action category distribution.
+
+## 8. External integrations
+
+The current MVP does not use external integrations for core functionality.
+
+There are no required:
 
 - external APIs,
-- cloud databases,
 - authentication providers,
+- payment providers,
+- cloud databases,
+- AI APIs,
 - notification services.
 
-## 6. Architecture decisions
+## 9. Architecture decisions
 
-The most important architecture decisions are documented in:
+Important architecture decisions are documented in:
 
 - `docs/architecture/adr_001.md`
 - `docs/architecture/adr_002.md`
+- `docs/architecture/adr_003.md`
 
-## 7. Future extension
+Additional architecture details are documented in:
 
-If the application grows, the architecture may later include:
+- `docs/architecture/system_overview.md`
+- `docs/architecture/data_model.md`
 
-- backend API,
-- external database,
-- user authentication,
-- synchronization between devices.
+## 10. Testing
 
-These elements are intentionally excluded from the current MVP.
+Automated tests use:
+
+- Vitest,
+- Testing Library,
+- jsdom.
+
+The test suite verifies both:
+
+- domain logic,
+- user-facing application behavior.
+
+## 11. Deployment
+
+The application is deployed using Vercel.
+
+The production application uses the same frontend architecture as the local development version.
+
+## 12. Architecture boundaries
+
+The current MVP intentionally excludes:
+
+- authentication,
+- user accounts,
+- payments,
+- server-side user data storage,
+- cloud synchronization,
+- generative AI recommendations.
+
+## 13. Future extension
+
+If the application grows, possible architectural extensions include:
+
+- remote API,
+- cloud database,
+- optional user authentication,
+- synchronization between devices,
+- richer analytics,
+- configurable recommendation rules.
+
+These extensions are outside the current MVP.

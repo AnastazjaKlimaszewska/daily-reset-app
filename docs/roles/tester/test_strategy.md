@@ -1,77 +1,116 @@
 # Test Strategy
 
-## 1. Testing goal
+## Cel
 
-The goal of testing is to verify that the main Daily Reset user flow works correctly and remains consistent with the approved feature plans.
+Celem testów w projekcie Daily Reset jest sprawdzenie, czy MVP działa zgodnie z wymaganiami, planami implementacji i aktualną architekturą systemu.
 
-## 2. Main areas to test
+Testy koncentrują się na:
 
-The following functionalities should be tested:
+- logice klasyfikacji,
+- logice rekomendacji,
+- głównych przepływach użytkownika,
+- poprawnym renderowaniu stron,
+- obsłudze danych lokalnych,
+- zapobieganiu regresjom.
 
-- energy level selection,
-- activity recommendations,
-- activity completion,
-- history storage.
+## Narzędzia testowe
 
-## 3. Test approach
+Projekt wykorzystuje:
 
-The MVP uses mainly manual testing.
+- Vitest,
+- Testing Library,
+- jsdom.
 
-The application should be checked after each implemented feature.
+## Zakres testów automatycznych
 
-The tests should focus on expected user behaviour and simple edge cases.
+### Logika rekomendacji
 
-## 4. Functional test scenarios
+Testy sprawdzają:
 
-### Energy selection
+- klasyfikację stanu,
+- deterministyczne działanie logiki,
+- poprawną liczbę rekomendacji,
+- dopasowanie rekomendacji do stanu i dostępnego czasu.
 
-The tester should verify that:
+Plik:
 
-- low energy can be selected,
-- medium energy can be selected,
-- high energy can be selected,
-- only one energy level is active at a time,
-- changing the level updates the interface.
+`tests/recommendations.test.ts`
 
-### Activity recommendations
+### Dashboard
 
-The tester should verify that:
+Testy sprawdzają:
 
-- no suggestions are shown before energy selection,
-- low energy shows low-effort activities,
-- medium energy shows medium-effort activities,
-- high energy shows higher-effort activities,
-- changing energy changes the suggestions.
+- ładowanie zapisanych danych,
+- wyświetlanie podsumowania,
+- najnowszy stan,
+- ostatnią wykonaną akcję,
+- podstawowe elementy nawigacyjne.
 
-### Activity completion
+Plik:
 
-The tester should verify that:
+`tests/page.test.tsx`
 
-- an activity can be marked as completed,
-- the selected activity is visually highlighted,
-- the confirmation state is visible,
-- selecting another activity changes the completed activity,
-- changing the energy level resets the current completion state.
+### Daily Check-in
+
+Testy sprawdzają:
+
+- wybór energii,
+- wybór nastroju,
+- wybór obciążenia mentalnego,
+- wybór dostępnego czasu,
+- klasyfikację,
+- wygenerowanie dokładnie trzech rekomendacji,
+- wybór rekomendacji,
+- zapis wykonanej akcji.
+
+Plik:
+
+`tests/checkin.test.tsx`
 
 ### History
 
-The tester should verify that:
+Testy sprawdzają:
 
-- completing an activity creates a history entry,
-- the entry includes date, energy level and activity,
-- the newest activity appears first,
-- history remains visible after page refresh.
+- ładowanie zapisanych check-inów,
+- ładowanie wykonanych akcji,
+- powiązanie akcji z odpowiednim check-inem,
+- wyświetlanie historii użytkownika.
 
-## 5. Edge cases
+Plik:
 
-The tester should also check:
+`tests/history.test.tsx`
 
-- changing energy level before completing an activity,
-- switching energy levels several times,
-- completing several activities one after another,
-- refreshing the page with saved history,
-- opening the application with no saved history.
+### Insights
 
-## 6. Acceptance
+Testy sprawdzają:
 
-The MVP can be considered ready when all main user flows work without errors and the implemented behaviour matches the approved plans.
+- liczbę check-inów,
+- liczbę wykonanych akcji,
+- completion rate,
+- rozkład stanów,
+- najczęstszy stan,
+- kategorie wykonanych akcji.
+
+Plik:
+
+`tests/insights.test.tsx`
+
+### Settings
+
+Testy sprawdzają:
+
+- wyświetlanie informacji o danych lokalnych,
+- potwierdzenie przed usunięciem danych,
+- wywołanie operacji czyszczenia danych,
+- komunikat po zakończeniu operacji.
+
+Plik:
+
+`tests/settings.test.tsx`
+
+## Uruchamianie testów
+
+Pełny zestaw testów uruchamiany jest poleceniem:
+
+```bash
+npx.cmd vitest run

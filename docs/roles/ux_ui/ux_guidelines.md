@@ -2,62 +2,199 @@
 
 ## 1. UX goal
 
-The interface should help the user complete the main flow quickly and without unnecessary decisions.
+The interface should help the user move from uncertainty to one realistic next action with minimal effort.
 
-The application should feel simple and calm.
+The product should feel:
+
+- clear,
+- fast,
+- focused,
+- structured,
+- modern.
+
+The application should avoid unnecessary cognitive load.
 
 ## 2. Main user flow
 
-The main flow is:
+The main interaction flow is:
 
-1. The user opens the application.
-2. The user selects an energy level.
-3. The application shows matching activities.
-4. The user chooses one activity.
-5. The activity is marked as completed.
-6. The completed activity appears in history.
+1. Open the application.
+2. Start a Daily Check-in.
+3. Select energy.
+4. Select mood.
+5. Select mental load.
+6. Select available time.
+7. Submit the check-in.
+8. View the classified state.
+9. Review exactly three recommendations.
+10. Select one recommendation.
+11. Mark the action as completed.
+12. Review saved activity in History or Insights.
 
-## 3. Interface principles
+## 3. Navigation
 
-The interface should:
+The application uses persistent shared navigation.
 
-- use simple language,
-- show only the most important actions,
-- avoid unnecessary screens,
-- use clear visual hierarchy,
-- provide immediate feedback after user actions,
-- remain readable on desktop and mobile devices.
+Main sections are:
 
-## 4. Energy selection
+- Dashboard,
+- Check-in,
+- History,
+- Insights,
+- Settings.
 
-The three energy options should be visible at the same time.
+The current route should be visually identifiable.
 
-The selected option should look different from the others so the user can immediately understand which level is active.
+Navigation should remain usable on smaller screens.
 
-## 5. Activity recommendations
+## 4. Visual direction
 
-Suggested activities should be displayed only after the user selects an energy level.
+The current interface uses a dark product-oriented visual style.
 
-The number of suggestions should remain small to reduce decision effort.
+The visual system should use:
 
-## 6. Completion feedback
+- dark background surfaces,
+- strong contrast,
+- compact information panels,
+- clear section hierarchy,
+- restrained accent colors,
+- consistent spacing,
+- readable typography.
 
-When an activity is completed, the interface should clearly show this using:
+Accent colors may be used to distinguish important states or information, but should not reduce readability.
 
-- visual highlighting,
-- a check mark,
-- a short confirmation message.
+The interface should avoid decorative elements that do not communicate meaning.
 
-## 7. History
+## 5. Dashboard
 
-Recent completed activities should be displayed below the main interaction area.
+The Dashboard should provide immediate orientation.
 
-The newest activity should appear first.
+It should display the most useful summary information without requiring additional interaction.
 
-## 8. Accessibility and readability
+Important elements include:
 
-Text should have sufficient contrast.
+- total check-ins,
+- completed actions,
+- completion rate,
+- latest state,
+- latest completed action,
+- clear entry point to a new reset.
 
-Buttons should be large enough to click comfortably.
+## 6. Check-in controls
 
-The interface should remain understandable without complex icons or hidden navigation.
+Each input group should present all available options clearly.
+
+The selected option should be visually distinct.
+
+The user should be able to understand:
+
+- what information is required,
+- which option is selected,
+- whether the check-in is complete.
+
+The four input dimensions are:
+
+- energy,
+- mood,
+- mental load,
+- available time.
+
+## 7. Progress feedback
+
+The Check-in interface should communicate progress through the required inputs.
+
+The user should understand how many fields have been completed before submission.
+
+## 8. Recommendations
+
+Recommendations should appear only after a complete check-in is submitted.
+
+Exactly three recommendations should be displayed.
+
+Each recommendation should clearly communicate:
+
+- action name,
+- category,
+- selectable state.
+
+The currently selected recommendation should be visually identifiable.
+
+## 9. Completion feedback
+
+When an action is completed, the application should provide immediate confirmation.
+
+Feedback should make it clear that:
+
+- the action was completed,
+- the completion was saved.
+
+Repeated completion should be prevented within the current flow.
+
+## 10. History
+
+History should present saved resets in reverse chronological order.
+
+Each record should make it possible to understand:
+
+- classified state,
+- original check-in values,
+- date and time,
+- completed action if available.
+
+## 11. Insights
+
+Insights should use simple descriptive statistics.
+
+The interface should make patterns understandable without requiring statistical knowledge.
+
+Visual elements such as bars may be used for state distribution.
+
+The Insights page should not imply predictions or medical conclusions.
+
+## 12. Settings
+
+Settings should clearly explain that data is stored locally in the browser.
+
+The destructive action for clearing data should:
+
+- be clearly labeled,
+- require confirmation,
+- provide feedback after completion.
+
+## 13. Accessibility and readability
+
+The interface should maintain:
+
+- sufficient text contrast,
+- readable font sizes,
+- clear button states,
+- comfortable click targets,
+- visible focus and selection states,
+- understandable text labels.
+
+Meaning should not depend only on color.
+
+## 14. Responsive behavior
+
+The application should remain usable on:
+
+- desktop,
+- tablet,
+- mobile.
+
+Content may stack vertically on smaller screens.
+
+Navigation should remain accessible without hiding essential product functionality.
+
+## 15. Product consistency
+
+All pages should use a consistent visual language.
+
+Shared elements should use consistent:
+
+- spacing,
+- typography,
+- surfaces,
+- buttons,
+- state labels,
+- navigation behavior.

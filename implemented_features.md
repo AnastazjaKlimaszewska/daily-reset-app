@@ -1,8 +1,10 @@
 # Implemented Features
 
-This document summarizes functionality currently implemented in the Daily Reset MVP.
+This file summarizes the functionality currently implemented in the Daily Reset MVP.
 
 ## 1. Application Shell and Navigation
+
+Status: IMPLEMENTED
 
 The application uses a multi-page structure with shared navigation.
 
@@ -10,30 +12,40 @@ Available routes:
 
 - `/` — Dashboard
 - `/check-in` — Daily Check-in
-- `/history` — Reset History
+- `/history` — History
 - `/insights` — Insights
 - `/settings` — Settings
 
-The navigation is responsive and highlights the active section.
+Shared navigation is implemented in:
+
+`components/AppNavigation.tsx`
 
 ## 2. Dashboard
 
-The dashboard provides an overview of the user's local Daily Reset data.
+Status: IMPLEMENTED
 
-It displays:
+The Dashboard provides a summary of locally stored activity.
 
-- total number of check-ins,
-- total number of completed actions,
+It includes:
+
+- total check-ins,
+- total completed actions,
 - completion rate,
 - latest classified state,
 - latest completed action,
-- links to the main application features.
+- entry point to a new Daily Reset.
+
+Main implementation:
+
+`app/page.tsx`
 
 ## 3. Daily Check-in
 
-Users can describe their current situation using four inputs:
+Status: IMPLEMENTED
 
-- energy level,
+The Daily Check-in collects four values:
+
+- energy,
 - mood,
 - mental load,
 - available time.
@@ -44,123 +56,140 @@ Available time options:
 - 10 minutes,
 - 20 minutes.
 
-The check-in is stored locally after submission.
+Main implementation:
+
+`app/check-in/page.tsx`
 
 ## 4. State Classification
 
-The application classifies each check-in into one of three states:
+Status: IMPLEMENTED
+
+A completed check-in is classified into one of three states:
 
 - recovery,
 - balanced,
 - active.
 
-Classification is deterministic and rule-based.
+Classification is deterministic.
 
-No generative AI model is required to classify user input.
+Main implementation:
+
+`lib/recommendations.ts`
 
 ## 5. Adaptive Recommendations
 
-After a completed check-in, the application generates exactly three recommendations.
+Status: IMPLEMENTED
+
+The system generates exactly three recommendations.
 
 Recommendations depend on:
 
 - classified state,
 - available time.
 
-The user can select one recommended action.
+The application does not use generative AI for recommendation generation.
+
+Main implementation:
+
+`lib/recommendations.ts`
 
 ## 6. Completed Action Tracking
 
-A selected recommendation can be marked as completed.
+Status: IMPLEMENTED
 
-The application stores:
+The user can:
 
-- completed activity,
-- category,
-- related check-in,
-- completion timestamp.
+- select one recommendation,
+- mark the selected recommendation as completed.
+
+Completed actions are connected to the check-in that generated them.
 
 ## 7. IndexedDB Persistence
 
-Daily Reset uses IndexedDB through Dexie.
+Status: IMPLEMENTED
 
-The local database stores:
+Application data is stored locally using IndexedDB through Dexie.
 
-- check-ins,
-- completed actions.
+The database stores:
 
-The current MVP does not require a remote backend.
+- CheckIn records,
+- CompletedAction records.
+
+Database configuration:
+
+`lib/db.ts`
+
+Storage operations:
+
+`lib/storage.ts`
 
 ## 8. History
 
-The History page displays previous check-ins.
+Status: IMPLEMENTED
 
-Each history entry includes:
+The History page displays previous check-ins and related completed actions.
 
-- date and time,
+It includes:
+
 - classified state,
-- energy,
-- mood,
-- mental load,
-- available time,
-- completed action when available.
+- original check-in values,
+- date and time,
+- completed action where available.
+
+Main implementation:
+
+`app/history/page.tsx`
 
 ## 9. Insights
 
-The Insights page summarizes locally stored data.
+Status: IMPLEMENTED
 
-It includes:
+The Insights page provides descriptive statistics based on saved local data.
+
+Current statistics include:
 
 - total check-ins,
 - completed actions,
 - completion rate,
-- distribution of recovery, balanced and active states,
+- state distribution,
 - most common state,
 - completed action categories.
 
-Insights are calculated from saved user data and do not use predictive AI.
+Main implementation:
+
+`app/insights/page.tsx`
 
 ## 10. Local Data Management
 
-The Settings page explains how application data is stored.
+Status: IMPLEMENTED
 
-Users can clear all Daily Reset data from the current browser.
+The Settings page provides information about local storage and allows the user to clear all Daily Reset data.
 
-Clearing local data removes:
+The destructive action requires confirmation.
 
-- check-ins,
-- completed actions.
+Main implementation:
+
+`app/settings/page.tsx`
 
 ## 11. Automated Tests
 
-The project includes automated tests using Vitest and Testing Library.
+Status: IMPLEMENTED
 
-Tests cover:
+The project includes automated tests for:
 
+- classification logic,
 - recommendation logic,
-- dashboard,
-- check-in flow,
-- history,
-- insights,
-- settings,
-- local data operations and user interactions.
+- Dashboard,
+- Daily Check-in,
+- History,
+- Insights,
+- Settings.
 
-The complete test suite passes successfully.
+Test files are stored in:
 
-## 12. Production Build
+`tests/`
 
-The application successfully passes the Next.js production build.
+The current test command is:
 
-The project is deployable through Vercel.
-
-## MVP Boundaries
-
-The current MVP intentionally does not implement:
-
-- authentication,
-- registration,
-- payments,
-- cloud synchronization,
-- generative AI recommendations.
-
-These exclusions keep the product aligned with the defined MVP scope and course requirements.
+```bash
+npx.cmd vitest run

@@ -1,117 +1,129 @@
-# Application Shell and Navigation
+# PLAN Application Shell and Navigation
 
-## 1. Goal
+## Goal
 
-Create a consistent visual application shell for Daily Reset with branding and navigation between the main product views.
+Create a shared application shell and navigation system for Daily Reset that connects all primary routes and provides a consistent product experience.
 
-The goal is to make the application feel like a complete product instead of a single prototype page.
+## Scope
 
-## 2. Scope
+This plan covers:
 
-The feature includes:
-
-- Daily Reset branding,
-- application logo mark,
-- persistent navigation,
-- navigation links for:
-  - Dashboard,
-  - Check-in,
-  - History,
-  - Insights,
-  - Settings,
-- consistent page width and spacing,
-- responsive desktop and mobile navigation.
-
-The feature does not include implementing the full content of every page.
-
-## 3. Functional requirements
-
-- The application must display the Daily Reset name.
-- A simple visual logo mark must be visible.
-- The user must be able to navigate between the main routes.
-- The current page must be visually identifiable.
-- Navigation must work without full page reloads.
-- Navigation must remain usable on smaller screens.
-
-## 4. Non-functional requirements
-
-### UX
-
-Navigation should be simple and predictable.
-
-The visual hierarchy should clearly separate:
-
+- shared navigation,
 - application branding,
-- navigation,
-- page content.
+- route links,
+- active route indication,
+- responsive navigation behavior,
+- consistent application shell.
 
-### Visual design
+Main routes:
 
-The interface should use a consistent design system with:
+- `/`
+- `/check-in`
+- `/history`
+- `/insights`
+- `/settings`
 
-- soft neutral background,
-- one recognizable accent color,
-- rounded cards,
-- consistent typography,
-- consistent spacing.
+The detailed functionality of individual pages is covered by separate implementation plans.
 
-### Accessibility
+## Functional requirements
 
-Navigation links must use semantic links.
+The application shell must:
 
-Active and interactive states should be visually distinguishable.
+- display the Daily Reset brand,
+- provide a link to Dashboard,
+- provide a link to Check-in,
+- provide a link to History,
+- provide a link to Insights,
+- provide a link to Settings,
+- identify the currently active route,
+- provide a clear entry point to start a reset,
+- appear consistently across the application.
 
-### Maintainability
+## Non-functional requirements
 
-The shared application shell should be reusable across all pages.
+The navigation should:
 
-## 5. Technical context
+- work on desktop and smaller screens,
+- preserve readability,
+- remain visually consistent,
+- avoid blocking page content,
+- use understandable text labels,
+- keep the route structure clear.
 
-The feature uses:
+## Visual direction
 
-- Next.js App Router,
-- React,
-- TypeScript,
-- Tailwind CSS,
-- Next.js `Link`,
-- Next.js `usePathname()` for active navigation state.
+The application uses a dark product-oriented interface.
 
-A shared navigation component should be placed in the `components` directory.
+The visual language includes:
 
-## 6. Implementation steps
+- dark background surfaces,
+- high contrast,
+- compact information modules,
+- strong but restrained accent colors,
+- consistent spacing,
+- clear typography.
 
-1. Create a reusable application navigation component.
-2. Add Daily Reset branding and logo mark.
-3. Add links for Dashboard, Check-in, History, Insights and Settings.
-4. Add active-route styling.
-5. Create initial route files for each main view.
-6. Apply a consistent application background and content container.
-7. Verify responsive behavior.
-8. Add or update automated tests.
-9. Update project documentation.
+Accent colors may include green, purple and orange tones for functional differentiation.
 
-## 7. Acceptance criteria
+The interface should avoid unnecessary decorative elements and generic wellness-style visual patterns.
 
-- Daily Reset branding is visible.
-- Navigation contains all five main product sections.
-- Every navigation item opens the correct route.
-- The active page is visually highlighted.
-- Navigation works on desktop and mobile widths.
-- The existing application logic remains intact.
-- Automated tests pass.
-- Production build passes.
+## Technical context
 
-## 8. Tests
+Shared navigation component:
 
-### Component tests
+`components/AppNavigation.tsx`
 
-- navigation renders all required links,
-- navigation links point to the correct routes,
-- active route receives active styling.
+Root layout:
 
-### Manual tests
+`app/layout.tsx`
 
-- open each route,
-- verify branding remains visible,
-- verify navigation works,
-- verify layout remains usable on mobile width.
+Routes:
+
+- `app/page.tsx`
+- `app/check-in/page.tsx`
+- `app/history/page.tsx`
+- `app/insights/page.tsx`
+- `app/settings/page.tsx`
+
+Framework:
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+
+## Implementation steps
+
+1. Define the main route structure.
+2. Create the shared navigation component.
+3. Add Daily Reset branding.
+4. Add navigation links.
+5. Add active route styling.
+6. Add a primary Start Reset action.
+7. Add navigation to the root layout.
+8. Implement responsive behavior.
+9. Apply the current visual system.
+10. Verify all routes.
+11. Add automated tests where appropriate.
+
+## Acceptance criteria
+
+The feature is complete when:
+
+- all five main routes are accessible,
+- shared navigation is visible across pages,
+- the active route is visually identifiable,
+- Start Reset links to Daily Check-in,
+- navigation works on smaller screens,
+- the visual shell is consistent across routes,
+- no route produces a navigation-related runtime error.
+
+## Tests
+
+Testing should verify:
+
+- page navigation,
+- presence of primary route links,
+- Start Reset destination,
+- rendering across main application pages,
+- absence of route-related failures.

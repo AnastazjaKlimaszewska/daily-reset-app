@@ -1,45 +1,164 @@
 # Product Backlog
 
-## High priority
+## High priority — completed MVP
 
-### Energy level selection
+### Application shell and navigation
+
 Status: DONE
 
-The user can choose low, medium or high energy.
+The application provides a shared navigation structure connecting:
 
-### Activity recommendations
+- Dashboard,
+- Check-in,
+- History,
+- Insights,
+- Settings.
+
+### Daily Check-in
+
 Status: DONE
 
-The application shows activities matched to the selected energy level.
+The user can provide:
 
-### Activity completion
+- energy level,
+- mood,
+- mental load,
+- available time.
+
+### State classification
+
 Status: DONE
 
-The user can mark one activity as completed.
+Each completed check-in is classified into one of three states:
 
-### Activity history
+- recovery,
+- balanced,
+- active.
+
+Classification uses deterministic rules.
+
+### Adaptive recommendations
+
 Status: DONE
 
-Completed activities are saved and displayed in recent history.
+The application returns exactly three recommendations based on:
+
+- classified state,
+- available time.
+
+### Action selection and completion
+
+Status: DONE
+
+The user can select one recommendation and mark it as completed.
+
+The completed action is linked to the check-in that generated it.
+
+### IndexedDB persistence
+
+Status: DONE
+
+Check-ins and completed actions are stored locally using IndexedDB through Dexie.
+
+### History
+
+Status: DONE
+
+The user can review previous check-ins and related completed actions.
+
+### Dashboard
+
+Status: DONE
+
+The Dashboard displays:
+
+- total check-ins,
+- total completed actions,
+- completion rate,
+- latest classified state,
+- latest completed action.
+
+### Insights
+
+Status: DONE
+
+The application provides descriptive statistics including:
+
+- total check-ins,
+- total completed actions,
+- completion rate,
+- state distribution,
+- most common state,
+- completed action categories.
+
+### Local data management
+
+Status: DONE
+
+The user can clear all Daily Reset data stored in the browser.
+
+## Testing and quality
+
+### Automated tests
+
+Status: DONE
+
+Automated tests cover:
+
+- classification logic,
+- recommendation logic,
+- Dashboard,
+- Daily Check-in,
+- History,
+- Insights,
+- Settings.
+
+### Production build
+
+Status: DONE
+
+The application can be built successfully for production.
+
+### Deployment
+
+Status: DONE
+
+The application is deployed using Vercel.
 
 ## Low priority / future ideas
 
-### Custom activities
+### Custom recommendations
+
 Status: NOT PLANNED FOR MVP
 
-Allow users to create their own activities.
+Allow the user to create or configure custom recommendation options.
 
 ### User account
+
 Status: NOT PLANNED FOR MVP
 
-Allow users to create an account and synchronize data.
+Allow the user to create an account and optionally synchronize data between devices.
 
 ### Notifications
+
 Status: NOT PLANNED FOR MVP
 
-Send reminders about self-care activities.
+Allow users to receive reminders.
 
-### Statistics
+### Cloud synchronization
+
 Status: NOT PLANNED FOR MVP
 
-Show longer-term information about completed activities.
+Synchronize data between multiple devices.
+
+### Advanced analytics
+
+Status: NOT PLANNED FOR MVP
+
+Provide longer-term patterns, comparisons and more detailed visualizations.
+
+### Personalization
+
+Status: NOT PLANNED FOR MVP
+
+Allow recommendation rules to adapt to user preferences over time.

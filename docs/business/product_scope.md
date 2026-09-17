@@ -1,103 +1,98 @@
-# Daily Reset - Product Scope
+# ADR 002: Use Next.js with React and TypeScript
 
-## 1. Product idea
+## Status
 
-Daily Reset is a lightweight self-care SaaS concept focused on one specific problem:
+Accepted.
 
-helping users choose an appropriate small action when they feel mentally overloaded, tired or unsure what to do next.
+## Context
 
-The product does not attempt to be a complete mental health platform, productivity system or habit tracker.
+Daily Reset requires a modern frontend architecture that supports:
 
-Its purpose is to support a short daily check-in and recommend a small action based on the user's current state.
+- interactive user input,
+- multiple application routes,
+- reusable UI components,
+- local application state,
+- local persistence,
+- automated testing,
+- production deployment,
+- future extensibility.
 
-## 2. Why the scope was reduced
+The application does not currently require a separate backend.
 
-The original self-care concept was broader and included too many possible directions and features.
+## Decision
 
-After evaluation, the scope was reduced to one core workflow:
+Use:
 
-check-in → state classification → recommendation → completion → history.
+- Next.js,
+- React,
+- TypeScript.
 
-The product keeps the architecture and development process of a real SaaS project, while limiting the business problem to one narrow use case.
+Next.js provides:
 
-## 3. Core user problem
+- application routing,
+- application structure,
+- production build tooling,
+- deployment compatibility.
 
-Users can experience decision overload when they are tired, stressed or low on energy.
+React provides:
 
-Even simple self-care decisions can become difficult when too many options are available.
+- component-based UI development,
+- interactive state management,
+- reusable interface patterns.
 
-Daily Reset reduces the number of decisions by asking a short set of questions and presenting a small number of relevant actions.
+TypeScript provides static typing for:
 
-## 4. Target user
+- check-in values,
+- classified states,
+- recommendation objects,
+- persistence entities,
+- component data.
 
-The initial target user is an adult who:
+## Current usage
 
-- experiences occasional decision overload,
-- wants a simple self-care tool,
-- does not want to configure a complex productivity system,
-- prefers short actions that can be completed immediately,
-- wants to see simple history and patterns over time.
+The application uses the Next.js App Router.
 
-## 5. Core MVP flow
+Main routes are implemented in:
 
-The MVP flow is:
+- `app/page.tsx`
+- `app/check-in/page.tsx`
+- `app/history/page.tsx`
+- `app/insights/page.tsx`
+- `app/settings/page.tsx`
 
-1. The user starts a daily check-in.
-2. The user provides information about current energy, mood, available time and mental load.
-3. The application classifies the current state.
-4. The application shows a small number of recommended micro-actions.
-5. The user selects one action.
-6. The user marks the action as completed.
-7. The check-in and completed action are saved locally.
-8. The user can view previous check-ins and simple statistics.
+Shared navigation is implemented in:
 
-## 6. MVP features
+`components/AppNavigation.tsx`
 
-The MVP contains:
+Domain and persistence logic are separated into:
 
-- daily check-in,
-- state classification,
-- adaptive micro-action recommendations,
-- activity completion,
-- local persistence using IndexedDB,
-- history view,
-- simple statistics,
-- local data management.
+- `lib/recommendations.ts`
+- `lib/db.ts`
+- `lib/storage.ts`
 
-## 7. Out of scope
+The interface uses Tailwind CSS for styling.
 
-The following features are intentionally excluded from the current implementation:
+## Consequences
 
-- authentication,
-- registration,
-- payments,
-- social features,
-- chat,
-- therapist integration,
-- medical diagnosis,
-- AI-generated medical advice,
-- cloud synchronization.
+### Advantages
 
-Authentication, registration and payments are excluded because they are not part of the student implementation scope.
+- clear project structure,
+- strong TypeScript support,
+- reusable React components,
+- built-in routing,
+- simple production build,
+- compatibility with automated testing,
+- straightforward Vercel deployment,
+- good support for future extension.
 
-## 8. Technical direction
+### Trade-offs
 
-The frontend will continue to use Next.js, React and TypeScript.
+- Next.js provides more functionality than the current MVP strictly requires,
+- the project must avoid unnecessary server-side complexity,
+- interactive pages require client-side behavior where appropriate.
 
-Local persistence will be moved from localStorage to IndexedDB using Dexie.js to simulate a backend-like data layer in the browser.
+## Decision rationale
 
-The application should be component-based and testable.
+The selected stack provides enough technical capability for the Daily Reset MVP while remaining manageable for a small student project.
 
-## 9. Product success criteria
-
-The MVP is considered successful when:
-
-- the full check-in flow works,
-- recommendations change based on user input,
-- completed actions are stored,
-- data remains available after refresh,
-- history can be viewed,
-- simple statistics are calculated from stored data,
-- the application builds successfully,
-- automated tests pass,
-- the application is deployed publicly.
+It supports the current multi-page application, local-first persistence, automated tests and production deployment without requiring a separate backend.

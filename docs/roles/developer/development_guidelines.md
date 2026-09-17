@@ -2,72 +2,165 @@
 
 ## 1. Development approach
 
-The project follows Spec Driven Development.
+Daily Reset is developed using a Spec Driven Development process.
 
-A feature should be described in a plan before implementation.
+Implementation should follow documented requirements and plans instead of introducing undocumented functionality.
 
-Each feature should remain small and clearly defined.
+The repository is the source of truth.
 
-## 2. Source code
+## 2. General principles
 
-The main application is implemented using:
+Development should prioritize:
+
+- small implementation steps,
+- clear responsibilities,
+- predictable behavior,
+- testability,
+- simple architecture,
+- consistency with documented plans.
+
+Avoid unnecessary abstraction unless it clearly improves maintainability.
+
+## 3. Technology stack
+
+The current implementation uses:
 
 - Next.js,
 - React,
 - TypeScript,
-- Tailwind CSS.
+- Tailwind CSS,
+- Dexie,
+- IndexedDB,
+- Vitest,
+- Testing Library,
+- jsdom.
 
-The current MVP keeps most of the application logic in the main page component because the project is intentionally small.
+## 4. Application structure
 
-## 3. Coding conventions
+Main application routes:
 
-The code should:
+- `app/page.tsx` — Dashboard
+- `app/check-in/page.tsx` — Daily Check-in
+- `app/history/page.tsx` — History
+- `app/insights/page.tsx` — Insights
+- `app/settings/page.tsx` — Settings
 
-- use clear variable names,
-- avoid unnecessary complexity,
-- keep functions focused on one task,
-- use TypeScript types where useful,
-- keep UI logic easy to follow.
+Shared UI:
 
-## 4. Feature workflow
+- `components/AppNavigation.tsx`
 
-For each functionality:
+Domain and persistence logic:
 
-1. define the feature,
-2. create a plan in `/docs/plans`,
-3. review the plan,
-4. implement only the planned scope,
-5. test the functionality,
-6. update project documentation,
-7. update `implemented_plans.md`,
-8. update `implemented_features.md`.
+- `lib/recommendations.ts`
+- `lib/db.ts`
+- `lib/storage.ts`
 
-## 5. Scope control
+Automated tests are stored in:
 
-The developer should not add features that are outside the approved plan.
+- `tests/`
 
-If a new feature is needed, a new plan should be created first.
+## 5. Separation of concerns
 
-## 6. Data storage
+### Presentation
 
-The application uses localStorage for persistence.
+Pages and components are responsible for:
 
-The storage key used by the application is:
+- rendering UI,
+- collecting user input,
+- displaying application state,
+- invoking domain or storage functions.
 
-`dailyResetHistory`
+### Domain logic
 
-## 7. Local development
+`lib/recommendations.ts` is responsible for:
 
-The application can be started locally with:
+- deterministic state classification,
+- recommendation generation.
 
-`npm run dev`
+UI components should not duplicate this logic.
 
-If PowerShell blocks npm scripts on Windows, `npm.cmd run dev` can be used instead.
+### Persistence
 
-## 8. Version control
+`lib/db.ts` defines:
 
-Git is used for version control.
+- database,
+- entity types,
+- IndexedDB schema.
 
-GitHub is used as the remote repository.
+`lib/storage.ts` defines:
 
-Changes should be committed after meaningful development steps.
+- save operations,
+- read operations,
+- clear operations.
+
+Pages should use storage functions instead of directly manipulating IndexedDB.
+
+## 6. Persistence rules
+
+The current MVP uses IndexedDB through Dexie.
+
+Do not introduce `localStorage` as a second persistence mechanism for application records.
+
+The persisted domain entities are:
+
+- CheckIn,
+- CompletedAction.
+
+A completed action must reference its source check-in through:
+
+`checkInId`
+
+## 7. Recommendation rules
+
+State classification must remain deterministic.
+
+The system must classify a complete check-in as one of:
+
+- recovery,
+- balanced,
+- active.
+
+Recommendation generation must:
+
+- use classified state,
+- use available time,
+- return exactly three recommendations.
+
+Core recommendation behavior should remain testable without external APIs.
+
+## 8. UI development
+
+New UI should remain consistent with the existing application shell.
+
+The current visual direction uses:
+
+- dark surfaces,
+- strong contrast,
+- compact panels,
+- consistent spacing,
+- restrained accent colors,
+- responsive layouts.
+
+Shared navigation should remain consistent across all routes.
+
+## 9. Testing expectations
+
+Changes to core behavior should include or update tests.
+
+Tests should verify:
+
+- business logic,
+- user-visible behavior,
+- important storage calls,
+- edge states where appropriate.
+
+The current suite uses:
+
+- Vitest,
+- Testing Library,
+- jsdom.
+
+Run tests with:
+
+```bash
+npx vitest run

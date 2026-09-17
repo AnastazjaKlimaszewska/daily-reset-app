@@ -1,78 +1,178 @@
 # Business Requirements
 
-## 1. Product goal
+## 1. Product name
 
-Daily Reset is a simple self-care application designed to help users choose a small activity that matches their current energy level.
+Daily Reset
 
-The main goal is to reduce the effort required to decide what to do when a person feels tired, unmotivated or overwhelmed.
+## 2. Product purpose
 
-The application focuses on simplicity. Instead of presenting many options, it gives the user a small number of suggestions based on the selected energy level.
+Daily Reset helps users choose one realistic next action when they feel overloaded, tired, unfocused or unsure what to do next.
 
-## 2. Target users
+The application reduces decision effort by collecting a small amount of contextual information and generating a short set of suitable micro-actions.
 
-The application is intended for users who want a quick and simple way to choose a small self-care activity.
+## 3. User problem
 
-It may be especially useful for people who have difficulty deciding what to do when their energy level changes during the day.
+When users have limited energy or high mental load, choosing what to do next can itself become difficult.
 
-## 3. User stories
+Large productivity systems may require too much setup or planning for these moments.
 
-### Energy level selection
+Daily Reset should provide a faster alternative.
 
-As a user, I want to select my current energy level so that the application can show suggestions that match how I feel.
+## 4. Core value proposition
 
-### Activity recommendations
+The user completes a short check-in and receives exactly three realistic recommendations adapted to their current situation.
 
-As a user, I want to receive a short list of suggested activities so that I do not have to decide everything myself.
+The application should help the user move from:
 
-### Activity completion
+uncertainty
 
-As a user, I want to mark an activity as completed so that I can track what I have done.
+to:
 
-### Activity history
+one manageable next action.
 
-As a user, I want the application to remember my completed activities so that I can see my recent history after refreshing the page.
+## 5. Core user inputs
 
-## 4. Main use case
+The application must collect:
 
-1. The user opens the application.
-2. The user selects low, medium or high energy.
-3. The application displays activities matched to the selected level.
-4. The user chooses one activity and marks it as completed.
-5. The completed activity is saved in the history.
-6. The history remains available after the page is refreshed.
+- energy,
+- mood,
+- mental load,
+- available time.
 
-## 5. Business constraints
+Available time options:
 
-The MVP should remain small and simple.
+- 5 minutes,
+- 10 minutes,
+- 20 minutes.
 
-The application should not require user registration.
+## 6. State classification
 
-The application should not require a paid external service.
+The system must classify a completed check-in as one of:
 
-The application should work without a backend database.
+- recovery,
+- balanced,
+- active.
 
-The application should be usable directly in a web browser.
+Classification must be deterministic.
 
-## 6. Out of scope
+## 7. Recommendations
 
-The following features are not part of the current MVP:
+The system must return exactly three recommendations after a valid check-in.
 
-- user accounts,
+Recommendations must depend on:
+
+- classified state,
+- available time.
+
+The recommendation process must not depend on an external generative AI service.
+
+## 8. Action completion
+
+The user must be able to:
+
+- select one recommendation,
+- mark the selected recommendation as completed.
+
+A completed action should be connected to the check-in that generated it.
+
+## 9. Data persistence
+
+The application must preserve:
+
+- check-ins,
+- completed actions.
+
+Persistence should work locally in the browser.
+
+The current implementation uses IndexedDB through Dexie.
+
+## 10. History
+
+The user must be able to view previous resets.
+
+History should display relevant information including:
+
+- classified state,
+- original check-in values,
+- date,
+- completed action when available.
+
+## 11. Dashboard
+
+The application should provide a Dashboard summarizing useful information such as:
+
+- total check-ins,
+- total completed actions,
+- completion rate,
+- latest classified state,
+- latest completed action.
+
+## 12. Insights
+
+The application should provide simple descriptive insights based on local data.
+
+These include:
+
+- number of check-ins,
+- number of completed actions,
+- completion rate,
+- state distribution,
+- most common state,
+- action categories.
+
+## 13. Settings
+
+The user should be informed that application data is stored locally.
+
+The user must be able to clear all Daily Reset data.
+
+Destructive deletion should require confirmation.
+
+## 14. Usability requirements
+
+The application should:
+
+- require minimal setup,
+- avoid long questionnaires,
+- provide clear choices,
+- work on common screen sizes,
+- provide understandable feedback,
+- keep the main flow short.
+
+## 15. Privacy and infrastructure
+
+The current MVP does not require personal accounts.
+
+Core user data remains in the browser.
+
+No remote user database is required.
+
+## 16. MVP exclusions
+
+The MVP intentionally excludes:
+
+- login,
+- registration,
+- payments,
 - cloud synchronization,
-- push notifications,
 - social features,
-- AI-generated recommendations,
-- health diagnosis,
-- personalized medical advice,
-- integration with wearable devices,
-- mobile application.
+- remote recommendation services,
+- generative AI recommendations.
 
-## 7. Success criteria
+## 17. Business success criteria
 
-The MVP is successful if the user can:
+The MVP is considered successful if a user can complete the full flow:
 
-- choose an energy level,
-- receive relevant activity suggestions,
-- mark an activity as completed,
-- see the completed activity in history,
-- refresh the page without losing the saved history.
+1. open Daily Reset,
+2. complete the four-part check-in,
+3. receive a state classification,
+4. receive three recommendations,
+5. select and complete one action,
+6. return later and view the reset in History,
+7. view basic patterns in Insights.
+
+## 18. Product principle
+
+Daily Reset should remain a small decision-support tool rather than becoming a complex productivity platform.
+
+The product should reduce cognitive load rather than create additional planning work.
